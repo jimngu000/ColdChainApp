@@ -1,6 +1,10 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+import 'dart:async';
+
 
 void main() {
   runApp(MyApp());
@@ -19,7 +23,7 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
         ),
-        home: MyHomePage(),
+        home: MyHomePage()
       ),
     );
   }
@@ -64,6 +68,8 @@ class _MyHomePageState extends State<MyHomePage> {
       case 1:
         page = FavoritesPage();
         break;
+      case 2:
+        page = ReadWriteDemoPage(storage: CounterStorage());
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
@@ -81,6 +87,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 NavigationRailDestination(
                   icon: Icon(Icons.favorite),
                   label: Text('Favorites'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.auto_graph),
+                  label: Text('File read-write demo'),
                 ),
               ],
               selectedIndex: selectedIndex,
@@ -204,5 +214,127 @@ class FavoritesPage extends StatelessWidget {
           ),
       ],
     );
+  }
+}
+
+
+class ReadWriteDemoPage extends StatefulWidget {
+  const ReadWriteDemoPage({super.key, required this.storage});
+
+  final CounterStorage storage;
+
+  @override
+  State<ReadWriteDemoPage> createState() => _ReadWriteDemoState();
+}
+
+class _ReadWriteDemoState extends State<ReadWriteDemoPage> {
+  int _counter = 0;
+  String str = "";
+
+  @override
+  void initState() {
+    super.initState();
+    widget.storage.readCounter().then((value) {
+      setState(() {
+        str = value;
+      });
+    });
+  }
+
+  void zeroCount() {
+    setState(() {
+        _counter = 0;
+      });
+    
+  }
+
+  void clearStr() {
+    widget.storage.writeCounter("");
+
+    widget.storage.readCounter().then((value) {
+      setState(() {
+        str = value;
+      });
+    });
+  }
+
+  void _incrementCounter() {
+    setState(() {
+      _counter++;
+    });
+
+    // Write the variable as a string to the file.
+    widget.storage.writeCounter("$str WRITE ${_counter}");
+
+    widget.storage.readCounter().then((value) {
+      setState(() {
+        str = value;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+      children:[
+        AppBar(
+          title: const Text('Reading and Writing Files'),
+        ),
+        Center(
+          child: Text(
+            'Button tapped $_counter time${_counter == 1 ? '' : 's'}. File now reads $str',
+          ),
+        ),
+        FloatingActionButton(
+          onPressed: _incrementCounter,
+          tooltip: 'Increment',
+          child: const Icon(Icons.add),
+        ),
+        ElevatedButton(
+          onPressed: zeroCount,
+          child: const Icon(Icons.restart_alt_rounded),
+        ),
+        ElevatedButton(
+          onPressed: clearStr,
+          child: const Icon(Icons.delete),
+        ),
+      ]
+      ),
+    );
+  }
+}
+
+class CounterStorage {
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+
+    return directory.path;
+  }
+
+  Future<File> get _localFile async {
+    final path = await _localPath;
+    return File('$path/counter.txt');
+  }
+
+  Future<String> readCounter() async {
+    try {
+      final file = await _localFile;
+
+      // Read the file
+      final contents = await file.readAsString();
+
+      return contents;
+    } catch (e) {
+      // If encountering an error, return 0
+      return "Error";
+    }
+  }
+
+  Future<File> writeCounter(String counter) async {
+    final file = await _localFile;
+
+    // Write the file
+    return file.writeAsString('$counter');
   }
 }
