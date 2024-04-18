@@ -7,7 +7,7 @@ import 'dart:async';
 
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -18,323 +18,147 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => MyAppState(),
       child: MaterialApp(
-        title: 'Namer App',
+        title: 'Cold Chain App',
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 10, 156, 234)),
         ),
-        home: MyHomePage()
+        home: const HomePage(),
       ),
     );
   }
 }
 
 class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
-  void getNext() {
-    current = WordPair.random();
-    notifyListeners();
-  }
+  int selectedPage = 1;
 
-  var favorites = <WordPair>[];
-
-  void toggleFavorite() {
-    if (favorites.contains(current)) {
-      favorites.remove(current);
-    } else {
-      favorites.add(current);
-    }
-    notifyListeners();
-  }
+  void goToLoginPage() {selectedPage = 0; notifyListeners();}
+  void goToDistrictManagerPage() {selectedPage = 1; notifyListeners();}
+  void goToHospitalPage() {selectedPage = 2; notifyListeners();}
+  void goToProfilePage() {selectedPage = 3; notifyListeners();}
+  void goToMenuPage() {selectedPage = 4; notifyListeners();}
 }
 
-// ...
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
-class MyHomePage extends StatefulWidget {
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  var selectedIndex = 0;     // ← Add this property.
+class _HomePageState extends State<HomePage> {
+  final String districtName = "DistrictName2";
 
   @override
   Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+    int selectedPage = appState.selectedPage;
     Widget page;
-    switch (selectedIndex) {
-      case 0:
-        page = GeneratorPage();
-        break;
-      case 1:
-        page = FavoritesPage();
-        break;
-      case 2:
-        page = ReadWriteDemoPage(storage: CounterStorage());
-      default:
-        throw UnimplementedError('no widget for $selectedIndex');
+    switch (selectedPage) {
+      case 0: page = const LoginPage();
+      case 1: page = DistrictManagerPage(hospitals: List<String>.generate(100, (i) => 'Hospital $i'), districtName: districtName,);
+      case 2: page = HospitalPage(districtName: districtName);
+      default: throw UnimplementedError('No Widget for $selectedPage');
     }
-    return Scaffold(
-      body: Row(
-        children: [
-          SafeArea(
-            child: NavigationRail(
-              extended: false,
-              destinations: [
-                NavigationRailDestination(
-                  icon: Icon(Icons.home),
-                  label: Text('Home'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.favorite),
-                  label: Text('Favorites'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.auto_graph),
-                  label: Text('File read-write demo'),
-                ),
-              ],
-              selectedIndex: selectedIndex,
-              onDestinationSelected: (value) {
-                setState(() {
-                  selectedIndex = value;
-                });
-              },
-            ),
-          ),
-          Expanded(
-            child: Container(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              child: page,  // ← Here.
-            ),
-          ),
-        ],
-      ),
+
+    return SafeArea(child: page);
+  }
+}
+
+// bug
+class LoginPage extends StatelessWidget {
+  const LoginPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Text('This is the title.', textDirection: TextDirection.ltr,),
+        Expanded(child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [ElevatedButton(onPressed: null, child: Text('Sign up'),),
+                     SizedBox(width: 10,),
+                     ElevatedButton(onPressed: null, child: Text('Sign in'),),],),
+          ),],
     );
   }
 }
 
+class DistrictManagerPage extends StatelessWidget {
+  final List<String> hospitals;
+  final String districtName;
 
-class GeneratorPage extends StatelessWidget {
+  const DistrictManagerPage({super.key, required this.hospitals, required this.districtName});
+
+  @override
+  Widget build(BuildContext context) {
+    var title = Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [Text(districtName), const Icon(Icons.person)],);
+    var appState = context.watch<MyAppState>();
+    
+    return Scaffold(
+      appBar: AppBar(title: title),
+      body: ListView.builder(
+        itemCount: hospitals.length,
+        prototypeItem: ListTile(leading: ElevatedButton.icon(onPressed: () {appState.goToHospitalPage();}, icon: const Icon(Icons.local_hospital), label: Text(hospitals.first)),
+                                ),
+        itemBuilder: (context, idx) {
+          return ListTile(leading: ElevatedButton.icon(onPressed: () {appState.goToHospitalPage();}, icon: const Icon(Icons.local_hospital), label: Text(hospitals[idx])),
+                          );
+        }),
+    );
+  }
+}
+
+class HospitalPage extends StatefulWidget {
+  final String districtName;
+  const HospitalPage({super.key, required this.districtName});
+  
+
+  @override
+  State<HospitalPage> createState() => _HospitalPageState();
+}
+
+class _HospitalPageState extends State<HospitalPage> {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
-    var pair = appState.current;
-
-    IconData icon;
-    if (appState.favorites.contains(pair)) {
-      icon = Icons.favorite;
-    } else {
-      icon = Icons.favorite_border;
-    }
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          BigCard(pair: pair),
-          SizedBox(height: 10),
+    return Scaffold(
+      appBar: AppBar(leading: IconButton(onPressed: () {appState.goToDistrictManagerPage();}, icon: const Icon(Icons.chevron_left_sharp),),
+                     title: Text(widget.districtName,)),
+      body: Container(child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          InfoView(feature: 'id',),
+          InfoView(feature: 'location',),
+          InfoView(feature: 'other info',),
+          SizedBox(height: 10,),
           Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  appState.toggleFavorite();
-                },
-                icon: Icon(icon),
-                label: Text('Like'),
-              ),
-              SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {
-                  appState.getNext();
-                },
-                child: Text('Next'),
-              ),
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              ElevatedButton(onPressed: null, child: Text('Edit'),),
+              SizedBox(width: 10,),
+              ElevatedButton(onPressed: null, child: Text('Save'),),
             ],
           ),
-        ],
+        ],),
       ),
     );
   }
 }
 
-// ...
-
-class BigCard extends StatelessWidget {
-  const BigCard({
+class InfoView extends StatelessWidget {
+  final String feature;
+  const InfoView({
     super.key,
-    required this.pair,
+    required this.feature,
   });
 
-  final WordPair pair;
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final style = theme.textTheme.displayMedium!.copyWith(
-      color: theme.colorScheme.onPrimary,
-    );
-    return Card(
-      color: theme.colorScheme.primary,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-
-        child: Text(
-          pair.asLowerCase,
-          style: style,
-          semanticsLabel: "${pair.first} ${pair.second}",
-        ),
-      ),
-    );
-  }
-}
-
-class FavoritesPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-
-    if (appState.favorites.isEmpty) {
-      return Center(
-        child: Text('No favorites yet.'),
-      );
-    }
-
-    return ListView(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(20),
-          child: Text('You have '
-              '${appState.favorites.length} favorites:'),
-        ),
-        for (var pair in appState.favorites)
-          ListTile(
-            leading: Icon(Icons.favorite),
-            title: Text(pair.asLowerCase),
-          ),
-      ],
-    );
-  }
-}
-
-
-class ReadWriteDemoPage extends StatefulWidget {
-  const ReadWriteDemoPage({super.key, required this.storage});
-
-  final CounterStorage storage;
-
-  @override
-  State<ReadWriteDemoPage> createState() => _ReadWriteDemoState();
-}
-
-class _ReadWriteDemoState extends State<ReadWriteDemoPage> {
-  int _counter = 0;
-  String str = "";
-
-  @override
-  void initState() {
-    super.initState();
-    widget.storage.readCounter().then((value) {
-      setState(() {
-        str = value;
-      });
-    });
-  }
-
-  void zeroCount() {
-    setState(() {
-        _counter = 0;
-      });
-    
-  }
-
-  void clearStr() {
-    widget.storage.writeCounter("");
-
-    widget.storage.readCounter().then((value) {
-      setState(() {
-        str = value;
-      });
-    });
-  }
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-
-    // Write the variable as a string to the file.
-    widget.storage.writeCounter("$str WRITE ${_counter}");
-
-    widget.storage.readCounter().then((value) {
-      setState(() {
-        str = value;
-      });
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-      children:[
-        AppBar(
-          title: const Text('Reading and Writing Files'),
-        ),
-        Center(
-          child: Text(
-            'Button tapped $_counter time${_counter == 1 ? '' : 's'}. File now reads $str',
-          ),
-        ),
-        FloatingActionButton(
-          onPressed: _incrementCounter,
-          tooltip: 'Increment',
-          child: const Icon(Icons.add),
-        ),
-        ElevatedButton(
-          onPressed: zeroCount,
-          child: const Icon(Icons.restart_alt_rounded),
-        ),
-        ElevatedButton(
-          onPressed: clearStr,
-          child: const Icon(Icons.delete),
-        ),
-      ]
-      ),
-    );
-  }
-}
-
-class CounterStorage {
-  Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-
-    return directory.path;
-  }
-
-  Future<File> get _localFile async {
-    final path = await _localPath;
-    return File('$path/counter.txt');
-  }
-
-  Future<String> readCounter() async {
-    try {
-      final file = await _localFile;
-
-      // Read the file
-      final contents = await file.readAsString();
-
-      return contents;
-    } catch (e) {
-      // If encountering an error, return 0
-      return "Error";
-    }
-  }
-
-  Future<File> writeCounter(String counter) async {
-    final file = await _localFile;
-
-    // Write the file
-    return file.writeAsString('$counter');
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+      child: Text('$feature: '));
   }
 }
