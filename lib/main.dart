@@ -1,10 +1,8 @@
-import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'dart:async';
-
 
 void main() {
   runApp(const MyApp());
@@ -68,22 +66,16 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// bug
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Text('This is the title.', textDirection: TextDirection.ltr,),
-        Expanded(child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [ElevatedButton(onPressed: null, child: Text('Sign up'),),
-                     SizedBox(width: 10,),
-                     ElevatedButton(onPressed: null, child: Text('Sign in'),),],),
-          ),],
+    return Scaffold(
+      appBar: AppBar(title: const Text('Name of the App')),
+      body: Center(
+        child: LoginForm(),
+      ),
     );
   }
 }
@@ -208,6 +200,81 @@ class MenuPage extends StatelessWidget {
         itemBuilder: (context, index) {
           return ListTile(leading: ElevatedButton(onPressed: () {appState.goToDistrictManagerPage();}, child: Text('$districtName $index')),);
         },),
+    );
+  }
+}
+
+class LoginForm extends StatefulWidget {
+  const LoginForm({super.key});
+
+  @override
+  State<LoginForm> createState() => _LoginFormState();
+}
+
+class _LoginFormState extends State<LoginForm> {
+  final _formKey = GlobalKey<FormState>();
+  final userController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    userController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  Widget build(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+            child: TextFormField(
+              controller: userController,
+              validator: (value) {
+                if (value == null || value.isEmpty) return 'Please enter user.';
+                return null;
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+            child: TextFormField(
+              controller: passwordController,
+              validator: (value) {
+                if (value == null || value.isEmpty) return 'Please enter password.';
+                return null;
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [ElevatedButton(
+                onPressed: null,
+                child: const Text('Sign up')),
+              const SizedBox(width: 10,),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    // call a server or save the info in a database
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('call a server or save the info in a database')),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Wrong user or password.')),
+                    );
+                  }
+                }, child: const Text('Sign in')),],
+            ),
+          )],
+        ),
+      ),
     );
   }
 }
