@@ -36,6 +36,21 @@ class MyAppState extends ChangeNotifier {
   void goToHospitalPage() {selectedPage = 2; notifyListeners();}
   void goToProfilePage() {selectedPage = 3; notifyListeners();}
   void goToMenuPage() {selectedPage = 4; notifyListeners();}
+
+  void fetchData() async {
+    var url = Uri.parse('http://127.0.0.1:8000/logistics/0/getHospitalCount/');
+    try {
+      var response = await http.get(url);
+      if (response.statusCode == 200) {
+        print('Data fetched successfully:');
+        print(response.body);
+      } else {
+        print('Failed to load data. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Caught error: $e');
+    }
+  }
 }
 
 class HomePage extends StatefulWidget {
@@ -106,7 +121,7 @@ class DistrictManagerPage extends StatelessWidget {
                               );
             }),
           ),
-          const ElevatedButton(onPressed: null, child: Text('Syncronization'),),
+          ElevatedButton(onPressed: () {appState.fetchData();}, child: Text('Synchronization'),),
           const SizedBox(height: 10,),
         ],
       ),
