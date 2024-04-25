@@ -21,9 +21,15 @@ def getHospitalList(request, district_id):
     return HttpResponse(district.hospital_set.all())
 
 
+def getHospitalById(request, district_id, hospital_id):
+    district_list = District.objects.all()
+    district = district_list[int(district_id)]
+    return HttpResponse(district.hospital_set.all()[int(hospital_id)])
+
+
 """
 void fetchData() async {
-    var url = Uri.parse('http://127.0.0.1:8000/logistics/0/getHospitalCount/');
+    var url = Uri.parse('http://127.0.0.1:8000/logistics/0/getHospitalCount');
     try {
       var response = await http.get(url);
       if (response.statusCode == 200) {
