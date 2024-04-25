@@ -7,4 +7,5 @@ urlpatterns = [
     # ex: /polls/5/
     re_path(r'^(?P<district_id>[0-9]+)/getDistrict$', views.getDistrict, name='getDistrict'),
     re_path(r'^(?P<district_id>[0-9]+)/getHospitalCount/$', views.getHospitalCount, name='getHospitalCount'),
+    re_path(r'^(?P<district_id>[0-9]+)/getHospitalList/$', views.getHospitalList, name='getHospitalList'),
 ]

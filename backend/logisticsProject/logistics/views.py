@@ -15,6 +15,11 @@ def getHospitalCount(request, district_id):
     district = district_list[int(district_id)]
     return HttpResponse(str(district.hospital_set.count()))
 
+def getHospitalList(request, district_id):
+    district_list = District.objects.all()
+    district = district_list[int(district_id)]
+    return HttpResponse(district.hospital_set.all())
+
 
 """
 void fetchData() async {
