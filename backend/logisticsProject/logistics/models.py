@@ -13,6 +13,8 @@ class District(models.Model):
 class Hospital(models.Model):
     name = models.CharField(max_length=200)
     district = models.ForeignKey(District, on_delete=models.CASCADE)
+    value = models.IntegerField(default=0)
+
 
     def __str__(self):
         return self.name
