@@ -26,6 +26,19 @@ def getHospitalById(request, district_id, hospital_id):
     district = district_list[int(district_id)]
     return HttpResponse(district.hospital_set.all()[int(hospital_id)])
 
+def getHospitalValueById(request, district_id, hospital_id):
+    district_list = District.objects.all()
+    district = district_list[int(district_id)]
+    return HttpResponse(district.hospital_set.all()[int(hospital_id)].value)
+
+def modifyHospitalById(request, district_id, hospital_id, value):
+    district_list = District.objects.all()
+    district = district_list[int(district_id)]
+    hospital = district.hospital_set.all()[int(hospital_id)]
+    hospital.value = value
+    hospital.save()
+    return HttpResponse("changed Hospital value to " + str(value))
+
 
 """
 void fetchData() async {
