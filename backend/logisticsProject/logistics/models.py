@@ -1,3 +1,4 @@
+from django.core import serializers
 from django.db import models
 
 
@@ -15,6 +16,16 @@ class Hospital(models.Model):
     district = models.ForeignKey(District, on_delete=models.CASCADE)
     value = models.IntegerField(default=0)
 
-
     def __str__(self):
-        return self.name
+        #build = "name: " + self.name + " district: " + self.district.name + " value: " + str(self.value)
+        #return serializers.serialize('json', [self])
+        return str(self.name)+","+str(self.district.name)+","+str(self.value) + " "
+
+
+class Log(models.Model):
+    user = models.CharField(max_length=200)
+    district = models.ForeignKey(District, on_delete=models.CASCADE)
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE)
+    value = models.IntegerField(default=0)
+    timestamp = models.DateTimeField(auto_now_add=True)
+

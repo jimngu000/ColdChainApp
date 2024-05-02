@@ -1,6 +1,8 @@
+from django.core import serializers
 from django.shortcuts import render
 from .models import Hospital, District
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 
 
 def index(request):
@@ -40,7 +42,24 @@ def modifyHospitalById(request, district_id, hospital_id, value):
     return HttpResponse("changed Hospital value to " + str(value))
 
 
-"""
+@csrf_exempt
+def addHospital(request):
+    """"
+    district_list = District.objects.all()
+    district = district_list[int(district_id)]
+    hospitalArray = hospital.split(',')
+    Hospital.objects.create(hospitalArray[0], hospitalArray[1], hospitalArray[2])
+    return HttpResponse("added " + str(hospital))
+    """
+    if request.method == 'POST':
+        for obj in serializers.deserialize('json', request.body):
+            user_instance = obj.object  # Get the deserialized object
+            user_instance.save()   # Save the object to the database
+            print(user_instance)
+    return HttpResponse("OK")
+
+
+""""
 void fetchData() async {
     var url = Uri.parse('http://127.0.0.1:8000/logistics/0/getHospitalCount');
     try {
