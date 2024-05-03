@@ -1,21 +1,60 @@
+// Dart imports:
+import 'dart:convert';
+
+// Flutter imports:
 import 'package:flutter/material.dart';
 
+// Package imports:
+import 'package:http/http.dart' as http;
+
+// Project imports:
+import '../models/district.dart';
 import '../models/hospital.dart';
-import '../models/refrigerator.dart';
-import '../utils/refrigerator_db_helper.dart';
 import 'profile_page.dart';
 import 'refrigerator_page.dart';
 
+Future<List<Hospital>> getHospitalsByDistrictID(int districtID) async {
+  final response = await http.get(Uri.parse(
+      "http://10.0.2.2:8000/logistics/getHospitalsByDistrictID?district_id=$districtID"));
+
+  if (response.statusCode == 200) {
+    List<dynamic> hospitalsJson = json.decode(response.body);
+    return hospitalsJson.map((json) {
+      return Hospital.fromJson(json);
+    }).toList();
+  } else {
+    throw Exception('Failed to load hospitals');
+  }
+}
+
 class HospitalPage extends StatefulWidget {
-  final Hospital hospital;
-  const HospitalPage({super.key, required this.hospital});
+  final District district;
+
+  const HospitalPage({super.key, required this.district});
+
   @override
   State<HospitalPage> createState() => _HospitalPageState();
 }
 
 class _HospitalPageState extends State<HospitalPage> {
-  final RefrigeratorDatabaseHelper _refrigeratorDatabaseHelper = RefrigeratorDatabaseHelper();
-  int count = 1;
+
+  late Future<List<Hospital>?> _hospitalsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _hospitalsFuture = _loadHospitals();
+  }
+
+  Future<List<Hospital>?> _loadHospitals() async {
+    try {
+      List<Hospital> hospitals = await getHospitalsByDistrictID(widget.district.id!);
+      return hospitals;
+    } catch (e) {
+      print('Failed to fetch or save districts: $e');
+      return Future.error('Failed to load data');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,19 +65,21 @@ class _HospitalPageState extends State<HospitalPage> {
         leading: IconButton(
           icon: const Icon(Icons.keyboard_arrow_left),
           onPressed: () {
-            debugPrint('Pop back');
             Navigator.of(context).pop();
           },
         ),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(widget.hospital.name, textAlign: TextAlign.center,),
+            Text(
+              widget.district.name,
+              textAlign: TextAlign.center,
+            ),
             const Spacer(),
             IconButton(
               onPressed: () {
-                debugPrint('hospital page to profile');
-                Navigator.push(context,
+                Navigator.push(
+                  context,
                   MaterialPageRoute(builder: (context) => ProfilePage()),
                 );
               },
@@ -47,14 +88,16 @@ class _HospitalPageState extends State<HospitalPage> {
           ],
         ),
       ),
-      body: FutureBuilder<List<Refrigerator>?>(
-        future: _refrigeratorDatabaseHelper.queryRefrigeratorsByColumnValue('hospital_id', widget.hospital.id),
+      body: FutureBuilder<List<Hospital>?>(
+        future: _hospitalsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const CircularProgressIndicator();
           }
           if (snapshot.hasError) {
-            return Center(child: Text(snapshot.error.toString()),);
+            return Center(
+              child: Text(snapshot.error.toString()),
+            );
           }
           if (snapshot.hasData && snapshot.data != null) {
             return ListView.builder(
@@ -63,22 +106,37 @@ class _HospitalPageState extends State<HospitalPage> {
                 color: Theme.of(context).colorScheme.primaryContainer,
                 elevation: 2.0,
                 child: ListTile(
-                  title: Text(snapshot.data![idx].name,),
+                  title: Text(
+                    snapshot.data![idx].name,
+                  ),
                   trailing: const Icon(Icons.keyboard_arrow_right),
                   onTap: () async {
-                    debugPrint('Hospital to Refrigerator');
-                    Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => RefrigeratorPage(refrigerator: snapshot.data![idx])),
+                    debugPrint('Hospital ListTile is tapped');
+                    // navigate
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              RefrigeratorPage(hospital: snapshot.data![idx])),
                     );
                   },
                 ),
               ),
             );
           }
-          return const Center(child: Text('No Data'),);
+          return const Center(
+            child: Text('No Data'),
+          );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          debugPrint('Synchronization button pressed');
+          // do some syn
+        },
+        tooltip: 'Synchronization',
+        child: const Icon(Icons.sync),
       ),
     );
   }
-
 }

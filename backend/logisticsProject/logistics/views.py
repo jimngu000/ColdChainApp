@@ -1,12 +1,24 @@
-from django.core import serializers
-from django.shortcuts import render
+from django.core.serializers import serialize
 from .models import Hospital, District
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
+def getAllDistricts(request):
+    district_list = District.objects.all()
+    return HttpResponse(serialize('json', district_list), content_type="application/json")
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the logistics index.")
+def getHospitalsByDistrictID(request):
+    district_id = request.GET.get('district_id')
+    if district_id != None and request.method == 'GET':
+        try:
+            hospitals = Hospital.objects.filter(district_id=district_id)
+            serialized_hospitals = serialize('json', hospitals)
+            return HttpResponse(serialized_hospitals, content_type='application/json')
+        except Hospital.DoesNotExist:
+            return HttpResponse("Hospitals not found", status=404)
+    else:
+        return HttpResponse("Invalid request method", status=405)
+    
 
 def getDistrict(request, district_id):
     district_list = District.objects.all()

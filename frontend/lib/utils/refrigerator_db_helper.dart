@@ -1,6 +1,8 @@
-import 'package:sqflite/sqflite.dart';
+// Package imports:
 import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
+// Project imports:
 import '../models/refrigerator.dart';
 
 class RefrigeratorDatabaseHelper {

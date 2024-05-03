@@ -1,15 +1,20 @@
+// Flutter imports:
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // context.watch
+import 'package:logistics/models/hospital.dart';
 
+// Project imports:
 import '../main.dart';
 import '../models/refrigerator.dart';
 import '../models/vaccine.dart';
 import '../utils/vaccine_db_helper.dart';
 import 'profile_page.dart';
 
+import 'package:provider/provider.dart'; // context.watch
+
+
 class RefrigeratorPage extends StatefulWidget {
-  final Refrigerator refrigerator;
-  const RefrigeratorPage({super.key, required this.refrigerator});
+  final Hospital hospital;
+  const RefrigeratorPage({super.key, required this.hospital});
 
   @override
   State<RefrigeratorPage> createState() => _RefrigeratorPageState();
@@ -35,7 +40,7 @@ class _RefrigeratorPageState extends State<RefrigeratorPage> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(widget.refrigerator.name, textAlign: TextAlign.center,),
+            Text(widget.hospital.name, textAlign: TextAlign.center,),
             const Spacer(),
             IconButton(
               onPressed: () {
@@ -50,7 +55,7 @@ class _RefrigeratorPageState extends State<RefrigeratorPage> {
         ),
       ),
       body: FutureBuilder<List<Vaccine>?>(
-        future: _vaccineDatabaseHelper.queryVaccinesByColumnValue('refrigerator_id', widget.refrigerator.id),
+        future: _vaccineDatabaseHelper.queryVaccinesByColumnValue('refrigerator_id', widget.hospital.id),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const CircularProgressIndicator();

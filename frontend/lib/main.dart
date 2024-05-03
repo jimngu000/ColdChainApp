@@ -1,13 +1,16 @@
-import 'screens/refrigerator_page.dart';
-import 'utils/vaccine_db_helper.dart';
+// Flutter imports:
 import 'package:flutter/material.dart';
+
+// Package imports:
 import 'package:provider/provider.dart';
 
+// Project imports:
 import 'models/district.dart';
 import 'models/hospital.dart';
 import 'models/refrigerator.dart';
 import 'models/vaccine.dart';
-import 'screens/menu_page.dart';
+import 'screens/district_page.dart';
+import 'utils/vaccine_db_helper.dart';
 
 void main() async {
 
@@ -49,9 +52,7 @@ class MyApp extends StatelessWidget {
         title: 'Cold Chain App',
         theme: ThemeData(primarySwatch: Colors.cyan),
         home: SafeArea(
-          child: RefrigeratorPage(
-            refrigerator: fido,
-          ), // this should be login page, not implemented yet
+          child: DistrictPage()
         ),
       ),
     );
