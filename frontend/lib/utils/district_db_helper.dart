@@ -1,7 +1,7 @@
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
 
 import '../models/district.dart';
+import 'package:path/path.dart';
 
 class DistrictDatabaseHelper {
   static DistrictDatabaseHelper? _districtDatabaseHelper; // singleton helper
@@ -11,7 +11,11 @@ class DistrictDatabaseHelper {
   String colName = 'name';
   String colOther = 'other';
 
-  DistrictDatabaseHelper._createInstance();
+  DistrictDatabaseHelper._createInstance() {
+    // You can initialize some default values or perform some initial setup here if needed
+    // For example:
+    print("Initializing District Database Helper");
+  }
 
   factory DistrictDatabaseHelper() {
     _districtDatabaseHelper ??= DistrictDatabaseHelper._createInstance();

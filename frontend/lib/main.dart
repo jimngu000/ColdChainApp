@@ -1,7 +1,7 @@
-import 'package:cold_vaccinev2/screens/refrigerator_page.dart'; // for test
-import 'package:cold_vaccinev2/utils/vaccine_db_helper.dart'; // for test
+import 'screens/refrigerator_page.dart';
+import 'utils/vaccine_db_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // ChangeNotifierProvider
+import 'package:provider/provider.dart';
 
 import 'models/district.dart';
 import 'models/hospital.dart';
@@ -10,17 +10,26 @@ import 'models/vaccine.dart';
 import 'screens/menu_page.dart';
 
 void main() async {
-  // WidgetsFlutterBinding.ensureInitialized();
+
   runApp(MyApp());
+
   // test code
-  /*
-  var v1 = Vaccine(name: 'vv1', producer: 'vv1p', type: 'd', amount: 10, hospital: 'h1', refrigeratorId: 1, refrigerator: 'r1', other: '');
+  var v1 = Vaccine(
+      name: 'vv1',
+      producer: 'vv1p',
+      type: 'd',
+      amount: 10,
+      hospital: 'h1',
+      refrigeratorId: 1,
+      refrigerator: 'r1',
+      other: '');
+
   final VaccineDatabaseHelper qVaccineDatabaseHelper = VaccineDatabaseHelper();
   await qVaccineDatabaseHelper.insertVaccine(v1);
-  */
 }
 
 class MyApp extends StatelessWidget {
+
   MyApp({super.key});
 
   // test code
@@ -40,7 +49,9 @@ class MyApp extends StatelessWidget {
         title: 'Cold Chain App',
         theme: ThemeData(primarySwatch: Colors.cyan),
         home: SafeArea(
-          child: RefrigeratorPage(refrigerator: fido,), // this should be login page, not implemented yet
+          child: RefrigeratorPage(
+            refrigerator: fido,
+          ), // this should be login page, not implemented yet
         ),
       ),
     );
@@ -98,6 +109,4 @@ class MyAppState extends ChangeNotifier {
     vaccineList.add(vaccine);
     notifyListeners();
   }
-
-  // some codes to remove items from List
 }
