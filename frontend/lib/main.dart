@@ -11,6 +11,7 @@ import 'models/refrigerator.dart';
 import 'models/vaccine.dart';
 import 'screens/district_page.dart';
 import 'utils/vaccine_db_helper.dart';
+import "screens/login_page.dart";
 
 void main() async {
 
@@ -52,7 +53,8 @@ class MyApp extends StatelessWidget {
         title: 'Cold Chain App',
         theme: ThemeData(primarySwatch: Colors.cyan),
         home: SafeArea(
-          child: DistrictPage()
+            child: LoginPage()
+          // child: DistrictPage()
         ),
       ),
     );

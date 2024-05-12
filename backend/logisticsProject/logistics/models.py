@@ -6,7 +6,7 @@ class User(models.Model):
 
 class District(models.Model):
     name = models.CharField(max_length=200)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    # user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 class Hospital(models.Model):
     name = models.CharField(max_length=200)
