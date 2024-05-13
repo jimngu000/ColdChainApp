@@ -1,5 +1,6 @@
+from django.core import serializers
 from django.core.serializers import serialize
-from .models import Hospital, District
+from .models import Hospital, District, User
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -34,7 +35,6 @@ def getHospitalList(request, district_id):
     district = district_list[int(district_id)]
     return HttpResponse(district.hospital_set.all())
 
-
 def getHospitalById(request, district_id, hospital_id):
     district_list = District.objects.all()
     district = district_list[int(district_id)]
@@ -53,6 +53,9 @@ def modifyHospitalById(request, district_id, hospital_id, value):
     hospital.save()
     return HttpResponse("changed Hospital value to " + str(value))
 
+def getAllUserInfo(request):
+    user_list = User.objects.all()
+    return HttpResponse(serialize('json', user_list), content_type="application/json")
 
 @csrf_exempt
 def addHospital(request):

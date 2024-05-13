@@ -1,14 +1,16 @@
-from django.urls import path
+from django.urls import path, re_path
+from django.views.decorators.csrf import csrf_exempt
 
 from . import views
 
 urlpatterns = [
-    path('getAllDistricts', views.getAllDistricts, name='getAllDistricts'),
-    path("getHospitalsByDistrictID", views.getHospitalsByDistrictID, name="getHospitalsByDistrictID")
+    path('getAllDistricts', csrf_exempt(views.getAllDistricts), name='getAllDistricts'),
+    path("getHospitalsByDistrictID", views.getHospitalsByDistrictID, name="getHospitalsByDistrictID"),
+    path("getAllUserInfo", views.getAllUserInfo, name="getAllUserInfo")
 ]
 
  # re_path(r'^$', views.index, name='index'),
-    # re_path(r'^getDistrict/(?P<district_id>[0-9]+)$', views.getDistrict, name='getDistrict'),
+    #re_path(r'^getDistrict/(?P<district_id>[0-9]+)$', views.getDistrict, name='getDistrict'),
     # re_path(r'^getHospitalCount/(?P<district_id>[0-9]+)$', views.getHospitalCount, name='getHospitalCount'),
     # re_path(r'^getHospitalList/(?P<district_id>[0-9]+)$', views.getHospitalList, name='getHospitalList'),
     # #re_path(r'^getHospitalList/(?P<district_id>[0-9]+)$', views.getHospitalList, name='getHospitalList'),
