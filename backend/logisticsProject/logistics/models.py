@@ -1,8 +1,10 @@
 from django.db import models
+from django.db.models import JSONField
+
 
 # User model
 class User(models.Model):
-    username = models.CharField(max_length=200)
+    username = models.CharField(max_length=201)
     password = models.CharField(max_length=200)
     is_system_admin = models.BooleanField(default=False)
 
@@ -40,10 +42,13 @@ class Log(models.Model):
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE)
     refrigerator = models.ForeignKey(Refrigerator, on_delete=models.CASCADE, null=True)
 
+    previous_value = JSONField()
+    new_value = JSONField()
+
     # which field has been updated
-    field_name = models.CharField(max_length=200)
-    previous_value = models.CharField(max_length=200)
-    new_value =models.CharField(max_length=200)
+    # field_name = models.CharField(max_length=200)
+    # previous_value = models.CharField(max_length=200)
+    # new_value =models.CharField(max_length=200)
 
     # record the time when the log is recorded 
     timestamp = models.DateTimeField(auto_now_add=True)

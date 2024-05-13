@@ -6,7 +6,15 @@ from . import views
 urlpatterns = [
     path('getAllDistricts', csrf_exempt(views.getAllDistricts), name='getAllDistricts'),
     path("getHospitalsByDistrictID", views.getHospitalsByDistrictID, name="getHospitalsByDistrictID"),
-    path("getAllUserInfo", views.getAllUserInfo, name="getAllUserInfo")
+    path("getAllUserInfo", views.getAllUserInfo, name="getAllUserInfo"),
+    path("updateFridge/<int:userId>/", views.updateFridge, name="updateFridge"),
+    path("addHospital", views.addHospital, name="addHospital"),
+    path("addUser", views.addUser, name="addUser"),
+    path("addFridge", views.addFridge, name="addFridge"),
+    path("getAllFridges", views.getAllFridges, name="getAllFridges"),
+    path("getAllHospitals", views.getAllHospitals, name="getAllHospitals"),
+    path("addHospital", views.addHospital, name="addHospital"),
+    path("getLog", views.getLog, name="getLog")
 ]
 
  # re_path(r'^$', views.index, name='index'),

@@ -1,6 +1,6 @@
 from django.core import serializers
 from django.core.serializers import serialize
-from .models import Hospital, District, User
+from .models import Hospital, District, User, Refrigerator, Log
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -72,6 +72,66 @@ def addHospital(request):
             user_instance.save()   # Save the object to the database
             print(user_instance)
     return HttpResponse("OK")
+
+@csrf_exempt
+def addUser(request):
+    if request.method == 'POST':
+        for obj in serializers.deserialize("json", request.body):
+            user_instance = obj.object  # Get the deserialized object
+            user_instance.save()   # Save the object to the database
+            print(user_instance)
+    return HttpResponse("OK")
+
+@csrf_exempt
+def addFridge(request):
+    if request.method == 'POST':
+        for obj in serializers.deserialize("json", request.body):
+            user_instance = obj.object  # Get the deserialized object
+            user_instance.save()   # Save the object to the database
+            print(user_instance)
+    return HttpResponse("OK")
+
+def getAllFridges(request):
+    fridge_list = Refrigerator.objects.all()
+    return HttpResponse(serialize('json', fridge_list), content_type="application/json")
+
+def getAllHospitals(request):
+    hospital_list = Hospital.objects.all()
+    return HttpResponse(serialize('json', hospital_list), content_type="application/json")
+
+def getLog(request):
+    log_list = Log.objects.all()
+    return HttpResponse(serialize('json', log_list), content_type="application/json")
+
+@csrf_exempt
+def updateFridge(request, userId):
+    """"
+    district_list = District.objects.all()
+    district = district_list[int(district_id)]
+    hospitalArray = hospital.split(',')
+    Hospital.objects.create(hospitalArray[0], hospitalArray[1], hospitalArray[2])
+    return HttpResponse("added " + str(hospital))
+    """
+    if request.method == 'POST':
+        user_id = int(userId)
+        for obj in serializers.deserialize('json', request.body):
+            fridge_instance = obj.object
+        if not isinstance(fridge_instance, Refrigerator):
+            return HttpResponse("Failed to update fridge")
+        user = User.objects.get(pk=user_id)
+        if user is None:
+            return HttpResponse("User does not exist")
+        old_fridge = Refrigerator.objects.get(pk=fridge_instance.id)
+        if old_fridge is None:
+            return HttpResponse("Fridge does not exist")
+        log = Log(user=user, district=fridge_instance.hospital.district, hospital=fridge_instance.hospital,
+                  refrigerator=fridge_instance, previous_value=serialize("json", [old_fridge]),
+                  new_value=serialize("json", [fridge_instance]))
+        fridge_instance.save()
+        log.save()
+        return HttpResponse("OK")
+    else:
+        return HttpResponse("Invalid request method", status=405)
 
 
 """"
