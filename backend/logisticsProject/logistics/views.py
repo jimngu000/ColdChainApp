@@ -110,6 +110,17 @@ def getConflictLog(request):
 def logOut(request):
     return HttpResponse("OK")
 
+def reassignDM(request):
+    return HttpResponse("OK")
+
+def getAssignments(request, userId):
+    user_id = int(userId)
+    districtList = District.objects.filter(user=user_id)
+    hospital_list = districtList.all().first().hospital_set.all()
+    for district in districtList.all():
+        hospital_list = district.hospital_set.all().union(hospital_list)
+    return HttpResponse(serialize('json', hospital_list), content_type="application/json")
+
 @csrf_exempt
 def updateFridge(request, userId):
     """"

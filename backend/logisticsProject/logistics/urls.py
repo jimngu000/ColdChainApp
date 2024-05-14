@@ -17,6 +17,8 @@ urlpatterns = [
     path("getLog", views.getLog, name="getLog"),
     path("getConflictLog", views.getConflictLog, name="getConflictLog"),
     path("logOut", views.logOut, name="logOut"),
+    path("reassignDM", views.reassignDM, name="reassignDM"),
+    path("getAssignments/<int:userId>/", views.getAssignments, name="getAssignments"),
 ]
 
  # re_path(r'^$', views.index, name='index'),
