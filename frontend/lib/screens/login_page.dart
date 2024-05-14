@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logistics/screens/admin_page.dart';
 
 import '../models/user.dart';
 
@@ -39,13 +40,16 @@ class UserAuthenticator {
     }
   }
 
-  bool validateCredentials(String username, String password) {
+  int validateCredentials(String username, String password) {
     for (var user in users) {
       if (user['fields']['username'] == username && user['fields']['password'] == password) {
-        return true;
+        if (user['fields']['is_system_admin']) {
+          return 2; // admin
+        }
+        return 1; // DM
       }
     }
-    return false;
+    return -1; // Unauthorized
   }
 }
 
@@ -66,20 +70,27 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _login() async {
-    bool isValid = _authenticator.validateCredentials(
+    int isValid = _authenticator.validateCredentials(
       _usernameController.text,
       _passwordController.text,
     );
-    if (isValid) {
+    if (isValid == -1) {
       setState(() {
-        print('Logging in with username: ${_usernameController.text} and password: ${_passwordController.text}');
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => DistrictPage()),
-        );
+        print('Failed to log in with username: ${_usernameController.text} and password: ${_passwordController.text}');
       });
     } else {
       setState(() {
-        print('Failed to log in with username: ${_usernameController.text} and password: ${_passwordController.text}');
+        print('Logging in with username: ${_usernameController.text} and password: ${_passwordController.text}');
+        if (isValid == 1) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => DistrictPage()),
+          );
+        }
+        if (isValid == 2) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => SystemAdministratorPage()),
+          );
+        }
       });
     }
   }

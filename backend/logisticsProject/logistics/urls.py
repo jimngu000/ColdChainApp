@@ -15,7 +15,8 @@ urlpatterns = [
     path("getAllHospitals", views.getAllHospitals, name="getAllHospitals"),
     path("addHospital", views.addHospital, name="addHospital"),
     path("getLog", views.getLog, name="getLog"),
-    path("getConflictLog", views.getConflictLog, name="getConflictLog")
+    path("getConflictLog", views.getConflictLog, name="getConflictLog"),
+    path("logOut", views.logOut, name="logOut"),
 ]
 
  # re_path(r'^$', views.index, name='index'),
