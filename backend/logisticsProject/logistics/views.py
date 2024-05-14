@@ -1,6 +1,6 @@
 from django.core import serializers
 from django.core.serializers import serialize
-from .models import Hospital, District, User, Refrigerator, Log
+from .models import Hospital, District, User, Refrigerator, Log, ConflictLog
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -103,6 +103,10 @@ def getLog(request):
     log_list = Log.objects.all()
     return HttpResponse(serialize('json', log_list), content_type="application/json")
 
+def getConflictLog(request):
+    conflict_list = ConflictLog.objects.all()
+    return HttpResponse(serialize('json', conflict_list), content_type="application/json")
+
 @csrf_exempt
 def updateFridge(request, userId):
     """"
@@ -118,17 +122,27 @@ def updateFridge(request, userId):
             fridge_instance = obj.object
         if not isinstance(fridge_instance, Refrigerator):
             return HttpResponse("Failed to update fridge")
-        user = User.objects.get(pk=user_id)
-        if user is None:
+        hospital = fridge_instance.hospital
+        district = hospital.district
+        caller = User.objects.get(pk=user_id)
+        if caller is None:
             return HttpResponse("User does not exist")
         old_fridge = Refrigerator.objects.get(pk=fridge_instance.id)
         if old_fridge is None:
             return HttpResponse("Fridge does not exist")
-        log = Log(user=user, district=fridge_instance.hospital.district, hospital=fridge_instance.hospital,
+        log = Log(user=caller, district=district, hospital=hospital,
                   refrigerator=fridge_instance, previous_value=serialize("json", [old_fridge]),
                   new_value=serialize("json", [fridge_instance]))
         fridge_instance.save()
+        # conflict occurs if the hospital being pushed to is in someone else's assigned district
+        # This does not account for synchronization issues. Only when a user pushes to another person's hospital
+        users = User.objects.all()
         log.save()
+        for user in users:
+            if user.id != caller.id:
+                if district.user.id == user.id:
+                    newLog = ConflictLog(log=log)
+                    newLog.save()
         return HttpResponse("OK")
     else:
         return HttpResponse("Invalid request method", status=405)

@@ -45,11 +45,10 @@ class Log(models.Model):
     previous_value = JSONField()
     new_value = JSONField()
 
-    # which field has been updated
-    # field_name = models.CharField(max_length=200)
-    # previous_value = models.CharField(max_length=200)
-    # new_value =models.CharField(max_length=200)
-
     # record the time when the log is recorded 
     timestamp = models.DateTimeField(auto_now_add=True)
+
+
+class ConflictLog(models.Model):
+    log = models.ForeignKey(Log, on_delete=models.CASCADE)
 
