@@ -4,9 +4,11 @@ from .models import Hospital, District, User, Refrigerator, Log, ConflictLog
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
+
 def getAllDistricts(request):
     district_list = District.objects.all()
     return HttpResponse(serialize('json', district_list), content_type="application/json")
+
 
 def getHospitalsByDistrictID(request):
     district_id = request.GET.get('district_id')
@@ -19,43 +21,12 @@ def getHospitalsByDistrictID(request):
             return HttpResponse("Hospitals not found", status=404)
     else:
         return HttpResponse("Invalid request method", status=405)
-    
 
-def getDistrict(request, district_id):
-    district_list = District.objects.all()
-    return HttpResponse(district_list[int(district_id)].name)
-
-def getHospitalCount(request, district_id):
-    district_list = District.objects.all()
-    district = district_list[int(district_id)]
-    return HttpResponse(str(district.hospital_set.count()))
-
-def getHospitalList(request, district_id):
-    district_list = District.objects.all()
-    district = district_list[int(district_id)]
-    return HttpResponse(district.hospital_set.all())
-
-def getHospitalById(request, district_id, hospital_id):
-    district_list = District.objects.all()
-    district = district_list[int(district_id)]
-    return HttpResponse(district.hospital_set.all()[int(hospital_id)])
-
-def getHospitalValueById(request, district_id, hospital_id):
-    district_list = District.objects.all()
-    district = district_list[int(district_id)]
-    return HttpResponse(district.hospital_set.all()[int(hospital_id)].value)
-
-def modifyHospitalById(request, district_id, hospital_id, value):
-    district_list = District.objects.all()
-    district = district_list[int(district_id)]
-    hospital = district.hospital_set.all()[int(hospital_id)]
-    hospital.value = value
-    hospital.save()
-    return HttpResponse("changed Hospital value to " + str(value))
 
 def getAllUserInfo(request):
     user_list = User.objects.all()
     return HttpResponse(serialize('json', user_list), content_type="application/json")
+
 
 @csrf_exempt
 def addHospital(request):
@@ -69,49 +40,58 @@ def addHospital(request):
     if request.method == 'POST':
         for obj in serializers.deserialize('json', request.body):
             user_instance = obj.object  # Get the deserialized object
-            user_instance.save()   # Save the object to the database
+            user_instance.save()  # Save the object to the database
             print(user_instance)
     return HttpResponse("OK")
+
 
 @csrf_exempt
 def addUser(request):
     if request.method == 'POST':
         for obj in serializers.deserialize("json", request.body):
             user_instance = obj.object  # Get the deserialized object
-            user_instance.save()   # Save the object to the database
+            user_instance.save()  # Save the object to the database
             print(user_instance)
     return HttpResponse("OK")
+
 
 @csrf_exempt
 def addFridge(request):
     if request.method == 'POST':
         for obj in serializers.deserialize("json", request.body):
             user_instance = obj.object  # Get the deserialized object
-            user_instance.save()   # Save the object to the database
+            user_instance.save()  # Save the object to the database
             print(user_instance)
     return HttpResponse("OK")
+
 
 def getAllFridges(request):
     fridge_list = Refrigerator.objects.all()
     return HttpResponse(serialize('json', fridge_list), content_type="application/json")
 
+
 def getAllHospitals(request):
     hospital_list = Hospital.objects.all()
     return HttpResponse(serialize('json', hospital_list), content_type="application/json")
+
 
 def getLog(request):
     log_list = Log.objects.all()
     return HttpResponse(serialize('json', log_list), content_type="application/json")
 
+
 def getConflictLog(request):
     conflict_list = ConflictLog.objects.all()
     return HttpResponse(serialize('json', conflict_list), content_type="application/json")
 
+
 def logOut(request):
     return HttpResponse("OK")
 
+
 def reassignDM(request):
     return HttpResponse("OK")
+
 
 def getAssignments(request, userId):
     user_id = int(userId)
@@ -120,6 +100,7 @@ def getAssignments(request, userId):
     for district in districtList.all():
         hospital_list = district.hospital_set.all().union(hospital_list)
     return HttpResponse(serialize('json', hospital_list), content_type="application/json")
+
 
 @csrf_exempt
 def updateFridge(request, userId):
@@ -162,19 +143,38 @@ def updateFridge(request, userId):
         return HttpResponse("Invalid request method", status=405)
 
 
-""""
-void fetchData() async {
-    var url = Uri.parse('http://127.0.0.1:8000/logistics/0/getHospitalCount');
-    try {
-      var response = await http.get(url);
-      if (response.statusCode == 200) {
-        print('Data fetched successfully:');
-        print(response.body);
-      } else {
-        print('Failed to load data. Status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Caught error: $e');
-    }
-  }
+"""
+
+def getDistrict(request, district_id):
+    district_list = District.objects.all()
+    return HttpResponse(district_list[int(district_id)].name)
+
+def getHospitalCount(request, district_id):
+    district_list = District.objects.all()
+    district = district_list[int(district_id)]
+    return HttpResponse(str(district.hospital_set.count()))
+
+def getHospitalList(request, district_id):
+    district_list = District.objects.all()
+    district = district_list[int(district_id)]
+    return HttpResponse(district.hospital_set.all())
+
+def getHospitalById(request, district_id, hospital_id):
+    district_list = District.objects.all()
+    district = district_list[int(district_id)]
+    return HttpResponse(district.hospital_set.all()[int(hospital_id)])
+
+def getHospitalValueById(request, district_id, hospital_id):
+    district_list = District.objects.all()
+    district = district_list[int(district_id)]
+    return HttpResponse(district.hospital_set.all()[int(hospital_id)].value)
+
+def modifyHospitalById(request, district_id, hospital_id, value):
+    district_list = District.objects.all()
+    district = district_list[int(district_id)]
+    hospital = district.hospital_set.all()[int(hospital_id)]
+    hospital.value = value
+    hospital.save()
+    return HttpResponse("changed Hospital value to " + str(value))
+    
 """
