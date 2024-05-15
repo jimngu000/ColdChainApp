@@ -20,36 +20,19 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
 class UserAuthenticator {
-  List<dynamic> users = [];
-
-  Future<bool> fetchUsers() async {
+  Future<int> validateCredentials(String username, String password) async {
     try {
-      var url = Uri.parse('http://localhost:8000/logistics/getAllUserInfo');
+      var url = Uri.parse('http://localhost:8000/logistics/logIn/$username/$password');
       var response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        users = json.decode(response.body);
-        return true;
+      if (response.statusCode != 200) {
+        return Future(() => -2);
       }
-      return false;
+      return Future(() => int.parse(response.body));
     } catch (e) {
       print('Error: $e');
-      return false;
+      return Future(() => -2);
     }
-  }
-
-  int validateCredentials(String username, String password) {
-    for (var user in users) {
-      if (user['fields']['username'] == username && user['fields']['password'] == password) {
-        if (user['fields']['is_system_admin']) {
-          return 2; // admin
-        }
-        return 1; // DM
-      }
-    }
-    return -1; // Unauthorized
   }
 }
 
@@ -66,17 +49,20 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    _authenticator.fetchUsers();
   }
 
   void _login() async {
-    int isValid = _authenticator.validateCredentials(
+    int isValid = await _authenticator.validateCredentials(
       _usernameController.text,
       _passwordController.text,
     );
     if (isValid == -1) {
       setState(() {
-        print('Failed to log in with username: ${_usernameController.text} and password: ${_passwordController.text}');
+        print('Unauthorized with username: ${_usernameController.text} and password: ${_passwordController.text}');
+      });
+    } else if (isValid == -2) {
+      setState(() {
+        print('Server error with username: ${_usernameController.text} and password: ${_passwordController.text}');
       });
     } else {
       setState(() {

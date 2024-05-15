@@ -88,6 +88,17 @@ def getConflictLog(request):
 def logOut(request):
     return HttpResponse("OK")
 
+def logIn(request, username, password):
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return HttpResponse("-1")
+    if user.password == password:
+        if user.is_system_admin:
+            return HttpResponse("2") # System admi
+        return HttpResponse("1") # DM
+    return HttpResponse("-1") # unauthorized
+
 
 @csrf_exempt
 def reassignDM(request, userId, newDistrictId):

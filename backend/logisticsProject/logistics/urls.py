@@ -16,6 +16,7 @@ urlpatterns = [
     path("getLog", views.getLog, name="getLog"),
     path("getConflictLog", views.getConflictLog, name="getConflictLog"),
     path("logOut", views.logOut, name="logOut"),
+    path("logIn/<str:username>/<str:password>", views.logIn, name="logIn"),
     path("reassignDM/<int:userId>/<int:newDistrictId>", views.reassignDM, name="reassignDM"),
     path("getAssignments/<int:userId>/", views.getAssignments, name="getAssignments"),
 ]
