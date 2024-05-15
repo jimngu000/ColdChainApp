@@ -89,7 +89,16 @@ def logOut(request):
     return HttpResponse("OK")
 
 
-def reassignDM(request):
+@csrf_exempt
+def reassignDM(request, userId, newDistrictId):
+    user = User.objects.get(pk=userId)
+    if user is None:
+        return HttpResponse("User does not exist")
+    newDistrict = District.objects.get(pk=newDistrictId)
+    if newDistrict is None:
+        return HttpResponse("District does not exist")
+    newDistrict.user = user
+    newDistrict.save()
     return HttpResponse("OK")
 
 
