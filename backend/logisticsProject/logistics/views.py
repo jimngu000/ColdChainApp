@@ -92,12 +92,12 @@ def logIn(request, username, password):
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
-        return HttpResponse("-1")
+        return HttpResponse("-1,-1")
     if user.password == password:
         if user.is_system_admin:
-            return HttpResponse("2") # System admi
-        return HttpResponse("1") # DM
-    return HttpResponse("-1") # unauthorized
+            return HttpResponse(str(user.id) + "," + "2") # System admin
+        return HttpResponse(str(user.id) + "," + "1") # DM
+    return HttpResponse("-1,-1") # unauthorized
 
 
 @csrf_exempt
@@ -113,13 +113,18 @@ def reassignDM(request, userId, newDistrictId):
     return HttpResponse("OK")
 
 
-def getAssignments(request, userId):
+def getHospitalAssignments(request, userId):
     user_id = int(userId)
     districtList = District.objects.filter(user=user_id)
     hospital_list = districtList.all().first().hospital_set.all()
     for district in districtList.all():
         hospital_list = district.hospital_set.all().union(hospital_list)
     return HttpResponse(serialize('json', hospital_list), content_type="application/json")
+
+def getDistrictAssignments(request, userId):
+    user_id = int(userId)
+    districtList = District.objects.filter(user=user_id)
+    return HttpResponse(serialize('json', districtList), content_type="application/json")
 
 
 @csrf_exempt

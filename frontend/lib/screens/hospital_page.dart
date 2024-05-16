@@ -15,7 +15,7 @@ import 'refrigerator_page.dart';
 
 Future<List<Hospital>> getHospitalsByDistrictID(int districtID) async {
   final response = await http.get(Uri.parse(
-      "http://10.0.2.2:8000/logistics/getHospitalsByDistrictID?district_id=$districtID"));
+      "http://127.0.0.1:8000/logistics/getHospitalsByDistrictID?district_id=$districtID"));
 
   if (response.statusCode == 200) {
     List<dynamic> hospitalsJson = json.decode(response.body);

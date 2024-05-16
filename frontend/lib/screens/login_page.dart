@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logistics/main.dart';
 import 'package:logistics/screens/admin_page.dart';
 
 import '../models/user.dart';
@@ -7,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'district_page.dart';
+import 'globals.dart' as globals;
 
 void main() => runApp(MyApp());
 
@@ -28,7 +30,9 @@ class UserAuthenticator {
       if (response.statusCode != 200) {
         return Future(() => -2);
       }
-      return Future(() => int.parse(response.body));
+      var strArr = response.body.split(",");
+      globals.userId = int.parse(strArr[0]);
+      return Future(() => int.parse(strArr[1]));
     } catch (e) {
       print('Error: $e');
       return Future(() => -2);

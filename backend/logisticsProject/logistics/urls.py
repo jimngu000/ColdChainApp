@@ -18,7 +18,8 @@ urlpatterns = [
     path("logOut", views.logOut, name="logOut"),
     path("logIn/<str:username>/<str:password>", views.logIn, name="logIn"),
     path("reassignDM/<int:userId>/<int:newDistrictId>", views.reassignDM, name="reassignDM"),
-    path("getAssignments/<int:userId>/", views.getAssignments, name="getAssignments"),
+    path("getHospitalAssignments/<int:userId>/", views.getHospitalAssignments, name="getHospitalAssignments"),
+    path("getDistrictAssignments/<int:userId>/", views.getDistrictAssignments, name="getDistrictAssignments"),
 ]
 
  # re_path(r'^$', views.index, name='index'),
