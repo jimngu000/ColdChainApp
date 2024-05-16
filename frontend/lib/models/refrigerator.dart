@@ -1,6 +1,7 @@
 class Refrigerator {
   final int? id;
   final int? hospitalId;
+  final int? userId;
 
   final String name;
   final String model_id;
@@ -16,7 +17,8 @@ class Refrigerator {
   Refrigerator({this.id, // primary key
                 this.hospitalId, required this.name, required this.model_id, required this.manufacturer,
                 required this.temp_monitor_installed, required this.monitor_type, required this.monitor_working,
-                required this.voltage_regulator_installed, required this.regulator_type, required this.vaccine_count});
+                required this.voltage_regulator_installed, required this.regulator_type, required this.vaccine_count,
+                required this.userId});
 
   Map<String, dynamic> toMap() {
     return {
@@ -31,6 +33,7 @@ class Refrigerator {
       'voltage_regulator_installed': voltage_regulator_installed,
       'regulator_type': regulator_type,
       'vaccine_count': vaccine_count,
+      'user_id': userId,
     };
   }
 
@@ -45,7 +48,8 @@ class Refrigerator {
     monitor_working: map['monitor_working'],
     voltage_regulator_installed: map['voltage_regulator_installed'],
     regulator_type: map['regulator_type'],
-    vaccine_count: map['vaccine_count']
+    vaccine_count: map['vaccine_count'],
+    userId: map['user_id'],
   );
 
   Map<String, dynamic> toJson() => {
@@ -60,6 +64,7 @@ class Refrigerator {
     'voltage_regulator_installed': voltage_regulator_installed,
     'regulator_type': regulator_type,
     'vaccine_count': vaccine_count,
+    'user_id': userId,
   };
 
   factory Refrigerator.fromJson(Map<String, dynamic> json) => Refrigerator(
@@ -73,7 +78,8 @@ class Refrigerator {
       monitor_working: json['monitor_working'],
       voltage_regulator_installed: json['voltage_regulator_installed'],
       regulator_type: json['regulator_type'],
-      vaccine_count: json['vaccine_count']
+      vaccine_count: json['vaccine_count'],
+      userId: json['user_id']
     );
 
   // for print
@@ -82,6 +88,6 @@ class Refrigerator {
     return 'Refrigerator{id: $id, hospital_id: $hospitalId, name: $name, model_id: $model_id, manufacturer: '
         '$manufacturer, temp_monitor_installed: $temp_monitor_installed, monitor_type: $monitor_type, '
         'monitor_working: $monitor_working, voltage_regulator_installed: $voltage_regulator_installed, '
-        'regulator_type: $regulator_type, vaccine_count: $vaccine_count}';
+        'regulator_type: $regulator_type, vaccine_count: $vaccine_count, user_id: $userId}';
   }
 }

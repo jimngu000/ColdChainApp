@@ -10,13 +10,15 @@ import 'package:logistics/screens/hospital_page.dart';
 
 // Project imports:
 import '../models/district.dart';
+import '../utils/district_db_helper.dart';
 import 'profile_page.dart';
 import 'globals.dart' as globals;
 
+/*
 Future<List<District>> getAllDistricts() async {
   String userId = globals.userId.toString();
   final response =
-  await http.get(Uri.parse("http://127.0.0.1:8000/logistics/getDistrictAssignments/$userId"));
+  await http.get(Uri.parse("http://10.0.2.2:8000/logistics/getDistrictAssignments/$userId"));
   if (response.statusCode == 200) {
     List<dynamic> districtsJson = json.decode(response.body);
     return districtsJson.map((json) {
@@ -26,6 +28,7 @@ Future<List<District>> getAllDistricts() async {
     throw Exception('Failed to load districts');
   }
 }
+*/
 
 class DistrictPage extends StatefulWidget {
   const DistrictPage({super.key});
@@ -36,13 +39,15 @@ class DistrictPage extends StatefulWidget {
 
 class _DistrictPageState extends State<DistrictPage> {
   late Future<List<District>?> _districtsFuture;
+  final DistrictDatabaseHelper _districtDatabaseHelper = DistrictDatabaseHelper();
 
   @override
   void initState() {
     super.initState();
-    _districtsFuture = _loadDistricts();
+    _districtsFuture = _districtDatabaseHelper.getAllDistricts();//_loadDistricts();
   }
 
+  /*
   Future<List<District>?> _loadDistricts() async {
     try {
       // Fetch districts from the API
@@ -53,6 +58,7 @@ class _DistrictPageState extends State<DistrictPage> {
       return Future.error('Failed to load data');
     }
   }
+  */
 
   @override
   Widget build(BuildContext context) {

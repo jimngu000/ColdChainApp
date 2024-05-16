@@ -126,6 +126,11 @@ def getDistrictAssignments(request, userId):
     districtList = District.objects.filter(user=user_id)
     return HttpResponse(serialize('json', districtList), content_type="application/json")
 
+def getFridgeAssignments(request, userId):
+    user_id = int(userId)
+    fridgeList = Refrigerator.objects.filter(user=user_id)
+    return HttpResponse(serialize('json', fridgeList), content_type="application/json")
+
 
 @csrf_exempt
 def updateFridge(request, userId):

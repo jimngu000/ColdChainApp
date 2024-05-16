@@ -41,6 +41,7 @@ def create_fridge(hospital):
         regulator_type=regulator_type,
         vaccine_count=vaccine_count,
         hospital=hospital,
+        user=hospital.user,
     )
 
 def populate_data():
@@ -58,7 +59,7 @@ def populate_data():
     districts_temp = []
 
     # Randomly assign districts to users, ensuring all are taken.
-    random.shuffle(districts)  
+    random.shuffle(districts)
     while districts:
         for user in users:
             if districts:
@@ -88,6 +89,7 @@ def populate_data():
 
                 # Save the hospital district.
                 hospital.district = district
+                hospital.user = district.user
                 hospital.save()
 
 if __name__ == '__main__':

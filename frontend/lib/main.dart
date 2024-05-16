@@ -18,6 +18,7 @@ void main() async {
   runApp(MyApp());
 
   // test code
+  /*
   var v1 = Vaccine(
       name: 'vv1',
       producer: 'vv1p',
@@ -30,6 +31,7 @@ void main() async {
 
   final VaccineDatabaseHelper qVaccineDatabaseHelper = VaccineDatabaseHelper();
   await qVaccineDatabaseHelper.insertVaccine(v1);
+  */
 }
 
 class MyApp extends StatelessWidget {
@@ -37,6 +39,7 @@ class MyApp extends StatelessWidget {
   MyApp({super.key});
 
   // test code
+  /*
   var fido = Refrigerator(
     id: 1,
     hospitalId: 2,
@@ -50,6 +53,7 @@ class MyApp extends StatelessWidget {
     regulator_type: "type1",
     vaccine_count: 100
   );
+  */
 
   @override
   Widget build(BuildContext context) {

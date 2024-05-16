@@ -11,9 +11,15 @@ class RefrigeratorDatabaseHelper {
   String refrigeratorTable = 'refrigerator_table';
   String colId = 'id';
   String colHospitalId = 'hospital_id';
+  String colUserId = 'user_id';
   String colName = 'name';
-  String colHospital = 'hospital';
-  String colOther = 'other';
+  String colManufacturer = 'manufacturer';
+  String colTempMonitorInstalled = 'temp_monitor_installed';
+  String colMonitorType = 'monitor_type';
+  String colMonitorWorking = 'monitor_working';
+  String colVoltageRegularInstalled = 'voltage_regular_installed';
+  String colRegularType = 'regular_type';
+  String colVaccineCount = 'vaccine_count';
 
   RefrigeratorDatabaseHelper._createInstance();
 
@@ -33,7 +39,7 @@ class RefrigeratorDatabaseHelper {
       var refrigeratorDatabase =
           await openDatabase(path, version: 1,
             onCreate: (db, version) async =>
-            await db.execute("CREATE TABLE refrigerators($colId INTEGER PRIMARY KEY, $colName TEXT, $colHospitalId INTEGER, $colHospital TEXT, $colOther TEXT);"),
+            await db.execute("CREATE TABLE refrigerators($colId INTEGER PRIMARY KEY, $colHospitalId INTEGER, $colUserId INTEGER, $colName TEXT, $colManufacturer TEXT, $colTempMonitorInstalled INTEGER, $colMonitorType TEXT, $colMonitorWorking INTEGER, $colVoltageRegularInstalled INTEGER, $colRegularType TEXT, $colVaccineCount INTEGER);"),
           );
       return refrigeratorDatabase;
     } catch(e) {

@@ -17,6 +17,7 @@ class District(models.Model):
 class Hospital(models.Model):
     name = models.CharField(max_length=200)
     district = models.ForeignKey(District, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
 # Refrigerator model
 # Note: For demo purposes, only taking a subset of fields
@@ -28,10 +29,11 @@ class Refrigerator(models.Model):
    temp_monitor_installed = models.BooleanField(default=False)
    monitor_type = models.CharField(max_length=200)
    monitor_working = models.BooleanField(default=False)
-   voltage_regulator_installed =  models.BooleanField(default=False)
+   voltage_regulator_installed = models.BooleanField(default=False)
    regulator_type = models.CharField(max_length=200)
    vaccine_count = models.IntegerField(default=0)
    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, null=True)
+   user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
 # Log model
 class Log(models.Model):
