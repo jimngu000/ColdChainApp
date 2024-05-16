@@ -20,8 +20,7 @@ import 'refrigerator_page.dart';
 
 Future<List<District>> getAllDistricts() async {
   String userId = globals.userId.toString();
-  final response =
-  await http.get(Uri.parse("http://10.0.2.2:8000/logistics/getDistrictAssignments/$userId"));
+  final response = await http.get(Uri.parse("http://localhost:8000/logistics/getDistrictAssignments/$userId"));
   if (response.statusCode == 200) {
     List<dynamic> districtsJson = json.decode(response.body);
     return districtsJson.map((json) {
@@ -224,6 +223,16 @@ class _DistrictPageState extends State<DistrictPage> {
             child: Text('See All Districts'),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          debugPrint('Synchronization button pressed');
+          setState(() {
+            _districtsFuture = _loadDistricts();
+          });
+        },
+        tooltip: 'Synchronization',
+        child: const Icon(Icons.sync),
       ),
     );
   }
