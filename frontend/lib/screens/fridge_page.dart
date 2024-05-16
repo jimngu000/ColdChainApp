@@ -8,50 +8,52 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 // Project imports:
-import '../models/district.dart';
 import '../models/hospital.dart';
+import '../models/refrigerator.dart';
+import 'editRefrigerator_page.dart';
 import 'profile_page.dart';
-import 'fridge_page.dart';
+import 'refrigerator_page.dart';
 
-Future<List<Hospital>> getHospitalsByDistrictID(int districtID) async {
+Future<List<Refrigerator>> getRefrigeratorsByHospitalID(int hospitalId) async {
+  String hospital = hospitalId.toString();
   final response = await http.get(Uri.parse(
-      "http://127.0.0.1:8000/logistics/getHospitalsByDistrictID?district_id=$districtID"));
+      "http://127.0.0.1:8000/logistics/getRefrigerators/$hospital"));
 
   if (response.statusCode == 200) {
-    List<dynamic> hospitalsJson = json.decode(response.body);
-    return hospitalsJson.map((json) {
-      return Hospital.fromJson(json);
+    List<dynamic> refrigeratorsJson = json.decode(response.body);
+    return refrigeratorsJson.map((json) {
+      return Refrigerator.fromJson(json);
     }).toList();
   } else {
-    throw Exception('Failed to load hospitals');
+    throw Exception('Failed to load refrigerators');
   }
 }
 
-class HospitalPage extends StatefulWidget {
-  final District district;
+class RefrigeratorPage extends StatefulWidget {
+  final Hospital hospital;
 
-  const HospitalPage({super.key, required this.district});
+  const RefrigeratorPage({super.key, required this.hospital});
 
   @override
-  State<HospitalPage> createState() => _HospitalPageState();
+  State<RefrigeratorPage> createState() => _RefrigeratorPageState();
 }
 
-class _HospitalPageState extends State<HospitalPage> {
+class _RefrigeratorPageState extends State<RefrigeratorPage> {
 
-  late Future<List<Hospital>?> _hospitalsFuture;
+  late Future<List<Refrigerator>?> _refrigeratorsFuture;
 
   @override
   void initState() {
     super.initState();
-    _hospitalsFuture = _loadHospitals();
+    _refrigeratorsFuture = _loadRefrigerators();
   }
 
-  Future<List<Hospital>?> _loadHospitals() async {
+  Future<List<Refrigerator>?> _loadRefrigerators() async {
     try {
-      List<Hospital> hospitals = await getHospitalsByDistrictID(widget.district.id!);
-      return hospitals;
+      List<Refrigerator> refrigerators = await getRefrigeratorsByHospitalID(widget.hospital.id!);
+      return refrigerators;
     } catch (e) {
-      print('Failed to fetch or save hospitals: $e');
+      print('Failed to fetch or save refrigerators: $e');
       return Future.error('Failed to load data');
     }
   }
@@ -72,7 +74,7 @@ class _HospitalPageState extends State<HospitalPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              widget.district.name,
+              widget.hospital.name,
               textAlign: TextAlign.center,
             ),
             const Spacer(),
@@ -88,8 +90,8 @@ class _HospitalPageState extends State<HospitalPage> {
           ],
         ),
       ),
-      body: FutureBuilder<List<Hospital>?>(
-        future: _hospitalsFuture,
+      body: FutureBuilder<List<Refrigerator>?>(
+        future: _refrigeratorsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const CircularProgressIndicator();
@@ -112,13 +114,13 @@ class _HospitalPageState extends State<HospitalPage> {
                   trailing: const Icon(Icons.keyboard_arrow_right),
                   onTap: () async {
                     debugPrint('Hospital ListTile is tapped');
-                    // navigate
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) =>
-                              RefrigeratorPage(hospital: snapshot.data![idx])),
+                        builder: (context) => EditRefrigeratorPage(refrigerator: snapshot.data![idx]),
+                      ),
                     );
+                    // navigate
                   },
                 ),
               ),

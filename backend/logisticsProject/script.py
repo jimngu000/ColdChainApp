@@ -9,6 +9,7 @@ from django.apps import apps
 from django.db import transaction, IntegrityError
 from logistics.models import User, District, Hospital, Refrigerator
 
+
 # Reset all the tables to repopulate new mock data.
 def clear_all_data():
     for model in apps.get_models():
@@ -19,8 +20,9 @@ def clear_all_data():
         except IntegrityError as e:
             print(f"Failed to clear data from {model._meta.db_table}: {e}")
 
+
 def create_fridge(hospital):
-    name =  f"fridge_{random.randint(1, 99999)}"
+    name = f"fridge_{random.randint(1, 99999)}"
     model_id = f"model_{random.randint(100, 999)}"
     manufacturer = random.choice(['Manufacturer A', 'Manufacturer B', 'Manufacturer C'])
     temp_monitor_installed = random.choice([True, False])
@@ -43,8 +45,8 @@ def create_fridge(hospital):
         hospital=hospital,
     )
 
-def populate_data():
 
+def populate_data():
     # Create users, one admin and three users.
     _admin = User.objects.create(username="admin", password="logistics", is_system_admin=True)
     user1 = User.objects.create(username="user_1", password="password_1", is_system_admin=False)
@@ -58,7 +60,7 @@ def populate_data():
     districts_temp = []
 
     # Randomly assign districts to users, ensuring all are taken.
-    random.shuffle(districts)  
+    random.shuffle(districts)
     while districts:
         for user in users:
             if districts:
@@ -66,7 +68,7 @@ def populate_data():
                 district.user = user
                 district.save()
                 districts_temp.append(district)
-    
+
     districts = districts_temp
 
     # Create 30 hospitals.
@@ -90,6 +92,7 @@ def populate_data():
                 hospital.district = district
                 hospital.save()
 
+
 if __name__ == '__main__':
-    clear_all_data() # Reset all backend tables.
-    populate_data() # Populate new backend tables from mock data.
+    clear_all_data()  # Reset all backend tables.
+    populate_data()  # Populate new backend tables from mock data.

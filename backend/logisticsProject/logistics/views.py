@@ -84,6 +84,10 @@ def getConflictLog(request):
     conflict_list = ConflictLog.objects.all()
     return HttpResponse(serialize('json', conflict_list), content_type="application/json")
 
+def getRefrigerators(request, hospitalId):
+    fridge_list = Refrigerator.objects.filter(hospital=hospitalId)
+    return HttpResponse(serialize('json', fridge_list), content_type="application/json")
+
 
 def logOut(request):
     return HttpResponse("OK")

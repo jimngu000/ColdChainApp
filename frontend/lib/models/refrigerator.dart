@@ -1,6 +1,6 @@
 class Refrigerator {
   final int? id;
-  final int? hospitalId;
+  final int? hospital;
 
   final String name;
   final String model_id;
@@ -14,14 +14,14 @@ class Refrigerator {
 
 
   Refrigerator({this.id, // primary key
-                this.hospitalId, required this.name, required this.model_id, required this.manufacturer,
+                this.hospital, required this.name, required this.model_id, required this.manufacturer,
                 required this.temp_monitor_installed, required this.monitor_type, required this.monitor_working,
                 required this.voltage_regulator_installed, required this.regulator_type, required this.vaccine_count});
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'hospital_id': hospitalId,
+      'hospital': hospital,
       'name': name,
       'model_id': model_id,
       'manufacturer': manufacturer,
@@ -36,7 +36,7 @@ class Refrigerator {
 
   factory Refrigerator.fromMap(Map<String, dynamic> map) => Refrigerator(
     id: map['id'],
-    hospitalId: map['hospital_id'],
+    hospital: map['hospital'],
     name: map['name'],
     model_id: map['model_id'],
     manufacturer: map['manufacturer'],
@@ -49,37 +49,40 @@ class Refrigerator {
   );
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'hospital_id': hospitalId,
-    'name': name,
-    'model_id': model_id,
-    'manufacturer': manufacturer,
-    'temp_monitor_installed': temp_monitor_installed,
-    'monitor_type': monitor_type,
-    'monitor_working': monitor_working,
-    'voltage_regulator_installed': voltage_regulator_installed,
-    'regulator_type': regulator_type,
-    'vaccine_count': vaccine_count,
+    'model': "logistics.Refrigerator",
+    'pk': id,
+    'fields': {
+      'hospital': hospital,
+      'name': name,
+      'model_id': model_id,
+      'manufacturer': manufacturer,
+      'temp_monitor_installed': temp_monitor_installed,
+      'monitor_type': monitor_type,
+      'monitor_working': monitor_working,
+      'voltage_regulator_installed': voltage_regulator_installed,
+      'regulator_type': regulator_type,
+      'vaccine_count': vaccine_count
+    }
   };
 
   factory Refrigerator.fromJson(Map<String, dynamic> json) => Refrigerator(
-      id: json['id'],
-      hospitalId: json['hospital_id'],
-      name: json['name'],
-      model_id: json['model_id'],
-      manufacturer: json['manufacturer'],
-      temp_monitor_installed: json['temp_monitor_installed'],
-      monitor_type: json['monitor_type'],
-      monitor_working: json['monitor_working'],
-      voltage_regulator_installed: json['voltage_regulator_installed'],
-      regulator_type: json['regulator_type'],
-      vaccine_count: json['vaccine_count']
+      id: json['pk'],
+      hospital: json["fields"]['hospital'],
+      name: json["fields"]['name'],
+      model_id: json["fields"]['model_id'],
+      manufacturer: json["fields"]['manufacturer'],
+      temp_monitor_installed: json["fields"]['temp_monitor_installed'],
+      monitor_type: json["fields"]['monitor_type'],
+      monitor_working: json["fields"]['monitor_working'],
+      voltage_regulator_installed: json["fields"]['voltage_regulator_installed'],
+      regulator_type: json["fields"]['regulator_type'],
+      vaccine_count: json["fields"]['vaccine_count']
     );
 
   // for print
   @override
   String toString() {
-    return 'Refrigerator{id: $id, hospital_id: $hospitalId, name: $name, model_id: $model_id, manufacturer: '
+    return 'Refrigerator{id: $id, hospital: $hospital, name: $name, model_id: $model_id, manufacturer: '
         '$manufacturer, temp_monitor_installed: $temp_monitor_installed, monitor_type: $monitor_type, '
         'monitor_working: $monitor_working, voltage_regulator_installed: $voltage_regulator_installed, '
         'regulator_type: $regulator_type, vaccine_count: $vaccine_count}';

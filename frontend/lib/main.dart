@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
   // test code
   var fido = Refrigerator(
     id: 1,
-    hospitalId: 2,
+    hospital: 2,
     name: "fridge2",
     model_id: "model2",
     manufacturer: "maker2",

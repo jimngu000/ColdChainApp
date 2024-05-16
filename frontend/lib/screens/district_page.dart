@@ -16,7 +16,7 @@ import 'globals.dart' as globals;
 Future<List<District>> getAllDistricts() async {
   String userId = globals.userId.toString();
   final response =
-  await http.get(Uri.parse("http://127.0.0.1:8000/logistics/getDistrictAssignments/$userId"));
+  await http.get(Uri.parse("http://localhost:8000/logistics/getDistrictAssignments/$userId"));
   if (response.statusCode == 200) {
     List<dynamic> districtsJson = json.decode(response.body);
     return districtsJson.map((json) {
@@ -49,7 +49,7 @@ class _DistrictPageState extends State<DistrictPage> {
       List<District> districts = await getAllDistricts();
       return districts;
     } catch (e) {
-      print('Failed to fetch or save districts: $e');
+        print('Failed to fetch or save districts: $e');
       return Future.error('Failed to load data');
     }
   }

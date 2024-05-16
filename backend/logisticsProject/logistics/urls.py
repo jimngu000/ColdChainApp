@@ -20,6 +20,7 @@ urlpatterns = [
     path("reassignDM/<int:userId>/<int:newDistrictId>", views.reassignDM, name="reassignDM"),
     path("getHospitalAssignments/<int:userId>/", views.getHospitalAssignments, name="getHospitalAssignments"),
     path("getDistrictAssignments/<int:userId>/", views.getDistrictAssignments, name="getDistrictAssignments"),
+    path("getRefrigerators/<int:hospitalId>/", views.getRefrigerators, name="getRefrigerators"),
 ]
 
  # re_path(r'^$', views.index, name='index'),
