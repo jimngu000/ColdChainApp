@@ -1,11 +1,8 @@
-// Flutter imports:
 import 'package:flutter/material.dart';
-
 import 'login_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
-
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +35,7 @@ class ProfilePage extends StatelessWidget {
                 child: const Text('Sign out'),
                 onPressed: () {
                   debugPrint('Sign out button pressed');
+                  Navigator.of(context).popUntil((route) => route.isFirst);
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(builder: (context) => LoginPage()),
                   );

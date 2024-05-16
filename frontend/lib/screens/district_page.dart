@@ -56,6 +56,7 @@ class _DistrictPageState extends State<DistrictPage> {
 
   @override
   Widget build(BuildContext context) {
+    String username = globals.username;
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
@@ -63,8 +64,8 @@ class _DistrictPageState extends State<DistrictPage> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              'CountryName',
+            Text(
+              'District Assignments for $username',
               textAlign: TextAlign.center,
             ),
             const Spacer(),

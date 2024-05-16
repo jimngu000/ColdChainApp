@@ -32,7 +32,8 @@ class UserAuthenticator {
       }
       var strArr = response.body.split(",");
       globals.userId = int.parse(strArr[0]);
-      return Future(() => int.parse(strArr[1]));
+      globals.username = strArr[1];
+      return Future(() => int.parse(strArr[2]));
     } catch (e) {
       print('Error: $e');
       return Future(() => -2);

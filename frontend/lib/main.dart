@@ -67,7 +67,6 @@ class MyAppState extends ChangeNotifier {
   var hospitalList = <Hospital>[];
   var refrigeratorList = <Refrigerator>[];
   var vaccineList = <Vaccine>[];
-  var userId = -1;
 
   // not sure if these methods required or if we can update lists in screens codes
   void addDistrict(District district) {

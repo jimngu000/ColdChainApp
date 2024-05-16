@@ -92,12 +92,12 @@ def logIn(request, username, password):
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
-        return HttpResponse("-1,-1")
+        return HttpResponse("-1,,-1")
     if user.password == password:
         if user.is_system_admin:
-            return HttpResponse(str(user.id) + "," + "2") # System admin
-        return HttpResponse(str(user.id) + "," + "1") # DM
-    return HttpResponse("-1,-1") # unauthorized
+            return HttpResponse(str(user.id) + "," + username + "," + "2")  # System admin
+        return HttpResponse(str(user.id) + "," + username + "," + "1")  # DM
+    return HttpResponse("-1,,-1")  # unauthorized
 
 
 @csrf_exempt
