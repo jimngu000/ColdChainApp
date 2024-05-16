@@ -71,7 +71,7 @@ class _EditRefrigeratorPageState extends State<EditRefrigeratorPage> {
       String jsonBody = jsonEncode(newRefrigerator.toJson());
       jsonBody = "[$jsonBody]";
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/logistics/updateFridge/$user/'), // Assuming there is an id field in the Refrigerator model
+        Uri.parse('http://127.0.0.1:8000/logistics/updateFridge/$user/'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -83,7 +83,7 @@ class _EditRefrigeratorPageState extends State<EditRefrigeratorPage> {
   }
 
   void _cancel() {
-    Navigator.of(context).pop();  // Return to the previous page without saving
+    Navigator.of(context).pop();
   }
 
   @override

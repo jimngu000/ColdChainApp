@@ -1,13 +1,6 @@
-// Dart imports:
 import 'dart:convert';
-
-// Flutter imports:
 import 'package:flutter/material.dart';
-
-// Package imports:
 import 'package:http/http.dart' as http;
-
-// Project imports:
 import '../models/hospital.dart';
 import '../models/refrigerator.dart';
 import 'editRefrigerator_page.dart';
@@ -39,7 +32,6 @@ class RefrigeratorPage extends StatefulWidget {
 }
 
 class _RefrigeratorPageState extends State<RefrigeratorPage> {
-
   late Future<List<Refrigerator>?> _refrigeratorsFuture;
 
   @override
@@ -114,13 +106,15 @@ class _RefrigeratorPageState extends State<RefrigeratorPage> {
                   trailing: const Icon(Icons.keyboard_arrow_right),
                   onTap: () async {
                     debugPrint('Hospital ListTile is tapped');
-                    Navigator.push(
+                    await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => EditRefrigeratorPage(refrigerator: snapshot.data![idx]),
                       ),
                     );
-                    // navigate
+                    setState(() {
+                      _refrigeratorsFuture = _loadRefrigerators();
+                    });
                   },
                 ),
               ),
@@ -134,7 +128,9 @@ class _RefrigeratorPageState extends State<RefrigeratorPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           debugPrint('Synchronization button pressed');
-          // do some syn
+          setState(() {
+            _refrigeratorsFuture = _loadRefrigerators();
+          });
         },
         tooltip: 'Synchronization',
         child: const Icon(Icons.sync),
