@@ -39,10 +39,16 @@ class MyApp extends StatelessWidget {
   // test code
   var fido = Refrigerator(
     id: 1,
-    name: 'r1',
     hospitalId: 2,
-    hospital: 'h1',
-    other: 'o1',
+    name: "fridge2",
+    model_id: "model2",
+    manufacturer: "maker2",
+    temp_monitor_installed: true,
+    monitor_type: "type1",
+    monitor_working: true,
+    voltage_regulator_installed: true,
+    regulator_type: "type1",
+    vaccine_count: 100
   );
 
   @override
