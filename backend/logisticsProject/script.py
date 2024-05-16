@@ -7,7 +7,7 @@ django.setup()
 
 from django.apps import apps
 from django.db import transaction, IntegrityError
-from logistics.models import User, District, Hospital, Refrigerator
+from logistics.models import User, District, Hospital, Refrigerator, Access
 
 
 # Reset all the tables to repopulate new mock data.
@@ -68,6 +68,8 @@ def populate_data():
                 district.user = user
                 district.save()
                 districts_temp.append(district)
+                # access
+                Access.objects.create(name=user.username, user=user, district=district)
 
     districts = districts_temp
 

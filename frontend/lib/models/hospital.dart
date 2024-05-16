@@ -13,6 +13,15 @@ class Hospital {
       name: json["fields"]['name'],
       district: json["fields"]['district']);
 
+  Map<String, dynamic> toJson() => {
+    'model': "logistics.Hospital",
+    'pk': id,
+    'fields': {
+      'name': name,
+      'district': district,
+    }
+  };
+
   // for print
   @override
   String toString() {

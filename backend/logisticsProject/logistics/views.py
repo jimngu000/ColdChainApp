@@ -1,6 +1,6 @@
 from django.core import serializers
 from django.core.serializers import serialize
-from .models import Hospital, District, User, Refrigerator, Log, ConflictLog
+from .models import Hospital, District, User, Refrigerator, Log, ConflictLog, Access
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -26,6 +26,10 @@ def getHospitalsByDistrictID(request):
 def getAllUserInfo(request):
     user_list = User.objects.all()
     return HttpResponse(serialize('json', user_list), content_type="application/json")
+
+def getAllAccess(request):
+    access_list = Access.objects.all()
+    return HttpResponse(serialize('json', access_list), content_type="application/json")
 
 
 @csrf_exempt
@@ -64,6 +68,14 @@ def addFridge(request):
             print(user_instance)
     return HttpResponse("OK")
 
+@csrf_exempt
+def addAccess(request):
+    if request.method == 'POST':
+        for obj in serializers.deserialize("json", request.body):
+            user_instance = obj.object  # Get the deserialized object
+            user_instance.save()  # Save the object to the database
+            print(user_instance)
+    return HttpResponse("OK")
 
 def getAllFridges(request):
     fridge_list = Refrigerator.objects.all()
@@ -129,6 +141,16 @@ def getDistrictAssignments(request, userId):
     user_id = int(userId)
     districtList = District.objects.filter(user=user_id)
     return HttpResponse(serialize('json', districtList), content_type="application/json")
+
+def getAccessHospitalAssignments(request, userId):
+    user_id = int(userId)
+    accessList = Access.objects.filter(user=user_id, district__isnull=True)
+    return HttpResponse(serialize('json', accessList), content_type="application/json")
+
+def getOneHospital(request, hospitalId):
+    h_id = int(hospitalId)
+    h = Hospital.objects.filter(id=hospitalId)
+    return HttpResponse(serialize('json', h), content_type="application/json")
 
 
 @csrf_exempt

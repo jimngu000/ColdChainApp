@@ -52,3 +52,8 @@ class Log(models.Model):
 class ConflictLog(models.Model):
     log = models.ForeignKey(Log, on_delete=models.CASCADE)
 
+class Access(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length = 200) # user name
+    district = models.ForeignKey(District, on_delete=models.CASCADE, null=True)
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, null=True)
