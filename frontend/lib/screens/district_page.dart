@@ -10,6 +10,7 @@ import 'package:logistics/screens/hospital_page.dart';
 
 // Project imports:
 import '../models/district.dart';
+import 'allDistrict_page.dart';
 import 'profile_page.dart';
 import 'globals.dart' as globals;
 
@@ -49,7 +50,7 @@ class _DistrictPageState extends State<DistrictPage> {
       List<District> districts = await getAllDistricts();
       return districts;
     } catch (e) {
-        print('Failed to fetch or save districts: $e');
+      print('Failed to fetch or save districts: $e');
       return Future.error('Failed to load data');
     }
   }
@@ -81,39 +82,54 @@ class _DistrictPageState extends State<DistrictPage> {
           ],
         ),
       ),
-      body: FutureBuilder<List<District>?>(
-        future: _districtsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-          if (snapshot.hasData && snapshot.data != null) {
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, idx) => Card(
-                color: Theme.of(context).colorScheme.primaryContainer,
-                elevation: 2.0,
-                child: ListTile(
-                  title: Text(snapshot.data![idx].name),
-                  trailing: const Icon(Icons.keyboard_arrow_right),
-                  onTap: () async {
-                    debugPrint('menu page to district page');
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              HospitalPage(district: snapshot.data![idx])),
-                    );
-                  },
-                ),
-              ),
-            );
-          }
-          return const Center(child: Text('No Data'));
-        },
+      body: Column(
+        children: [
+          Expanded(
+            child: FutureBuilder<List<District>?>(
+              future: _districtsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                }
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+                if (snapshot.hasData && snapshot.data != null) {
+                  return ListView.builder(
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (context, idx) => Card(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      elevation: 2.0,
+                      child: ListTile(
+                        title: Text(snapshot.data![idx].name),
+                        trailing: const Icon(Icons.keyboard_arrow_right),
+                        onTap: () async {
+                          debugPrint('menu page to district page');
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  HospitalPage(district: snapshot.data![idx]),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  );
+                }
+                return const Center(child: Text('No Data'));
+              },
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => AllDistrictPage()),
+              );
+            },
+            child: Text('See All Districts'),
+          ),
+        ],
       ),
     );
   }
