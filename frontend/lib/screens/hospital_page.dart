@@ -1,54 +1,78 @@
-// Dart imports:
+import 'dart:async';
 import 'dart:convert';
-
-// Flutter imports:
 import 'package:flutter/material.dart';
-
-// Package imports:
 import 'package:http/http.dart' as http;
-
-// Project imports:
+import 'package:connectivity_plus/connectivity_plus.dart';
 import '../models/district.dart';
 import '../models/hospital.dart';
 import 'profile_page.dart';
-import 'fridge_page.dart';
+import 'refrigerator_page.dart';
+import '../services/database_service.dart';
 
-Future<List<Hospital>> getHospitalsByDistrictID(int districtID) async {
-  final response = await http.get(Uri.parse(
-      "http://127.0.0.1:8000/logistics/getHospitalsByDistrictID?district_id=$districtID"));
+Future<List<Hospital>> getHospitalsByDistrictIDFromDb(int districtID) async {
+  final db = await getDatabase();
+  final List<Map<String, dynamic>> maps = await db.query(
+    'hospitals',
+    where: 'district_id = ?',
+    whereArgs: [districtID],
+  );
 
-  if (response.statusCode == 200) {
-    List<dynamic> hospitalsJson = json.decode(response.body);
-    return hospitalsJson.map((json) {
-      return Hospital.fromJson(json);
-    }).toList();
-  } else {
-    throw Exception('Failed to load hospitals');
-  }
+  return List.generate(maps.length, (i) {
+    return Hospital(
+      id: maps[i]['id'],
+      name: maps[i]['name'],
+      district: maps[i]['district_id'],
+    );
+  });
 }
 
 class HospitalPage extends StatefulWidget {
   final District district;
+  final bool viewOnly;
 
-  const HospitalPage({super.key, required this.district});
+  const HospitalPage({super.key, required this.district, required this.viewOnly});
 
   @override
   State<HospitalPage> createState() => _HospitalPageState();
 }
 
 class _HospitalPageState extends State<HospitalPage> {
-
   late Future<List<Hospital>?> _hospitalsFuture;
+  bool _hasInternetConnection = true;
+  StreamSubscription<ConnectivityResult>? _connectivitySubscription;
 
   @override
   void initState() {
     super.initState();
     _hospitalsFuture = _loadHospitals();
+    _checkInternetConnection();
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _checkInternetConnection() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    setState(() {
+      _hasInternetConnection = connectivityResult != ConnectivityResult.none;
+    });
+
+    _connectivitySubscription =
+        Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+          setState(() {
+            _hasInternetConnection = result != ConnectivityResult.none;
+          });
+        });
   }
 
   Future<List<Hospital>?> _loadHospitals() async {
+    print(widget.district.id!);
     try {
-      List<Hospital> hospitals = await getHospitalsByDistrictID(widget.district.id!);
+      List<Hospital> hospitals =
+      await getHospitalsByDistrictIDFromDb(widget.district.id!);
       return hospitals;
     } catch (e) {
       print('Failed to fetch or save hospitals: $e');
@@ -116,8 +140,9 @@ class _HospitalPageState extends State<HospitalPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) =>
-                              RefrigeratorPage(hospital: snapshot.data![idx])),
+                          builder: (context) => RefrigeratorPage(
+                              hospital: snapshot.data![idx],
+                              viewOnly: widget.viewOnly)),
                     );
                   },
                 ),
@@ -129,13 +154,17 @@ class _HospitalPageState extends State<HospitalPage> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          debugPrint('Synchronization button pressed');
-          // do some syn
-        },
-        tooltip: 'Synchronization',
-        child: const Icon(Icons.sync),
+      floatingActionButton: Tooltip(
+        message: _hasInternetConnection ? 'Upload updates to backend database' : 'No Internet connection',
+        child: FloatingActionButton(
+          onPressed: _hasInternetConnection ? () async {
+            debugPrint('Upload button pressed');
+            // TODO: Mark, you should add logic here to upload logs to the backend database.
+          } : null,
+          backgroundColor: _hasInternetConnection ? Theme.of(context).primaryColor : Colors.grey,
+          tooltip: 'Upload updates to backend database',
+          child: const Icon(Icons.cloud_upload),
+        ),
       ),
     );
   }

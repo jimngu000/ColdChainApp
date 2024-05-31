@@ -1,7 +1,7 @@
 from django.core import serializers
 from django.core.serializers import serialize
 from .models import Hospital, District, User, Refrigerator, Log, ConflictLog, Access
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 
@@ -105,15 +105,69 @@ def logOut(request):
     return HttpResponse("OK")
 
 def logIn(request, username, password):
+
     try:
         user = User.objects.get(username=username)
+
     except User.DoesNotExist:
-        return HttpResponse("-1,,-1")
+        return JsonResponse({'role': None, 'errorMessage': 'user does not exist', 'districts': None, 'userID': None})
+    
     if user.password == password:
+
         if user.is_system_admin:
-            return HttpResponse(str(user.id) + "," + username + "," + "2")  # System admin
-        return HttpResponse(str(user.id) + "," + username + "," + "1")  # DM
-    return HttpResponse("-1,,-1")  # unauthorized
+            return JsonResponse({'role': 'admin', 'errorMessage': None, 'districts': None, 'userID': user.id})
+        
+        else:
+            districts = fetchDistricts()
+            return JsonResponse({'role': 'user', 'errorMessage': None, 'districts': districts, 'userID': user.id})
+    
+    else:
+    
+        return JsonResponse({'role': None, 'errorMessage': 'password does not match', 'districts': None, 'userID': user.id})
+
+def fetchDistricts():
+
+    districts = District.objects.all().prefetch_related(
+        'hospital_set__refrigerator_set',
+        'user'
+    )
+
+    data = []
+    for district in districts:
+        hospitals_data = []
+        for hospital in district.hospital_set.all():
+            refrigerators_data = [{
+                'id': fridge.id,
+                'name': fridge.name,
+                'model_id': fridge.model_id,
+                'manufacturer': fridge.manufacturer,
+                'temp_monitor_installed': fridge.temp_monitor_installed,
+                'monitor_type': fridge.monitor_type,
+                'monitor_working': fridge.monitor_working,
+                'voltage_regulator_installed': fridge.voltage_regulator_installed,
+                'regulator_type': fridge.regulator_type,
+                'vaccine_count': fridge.vaccine_count
+            } for fridge in hospital.refrigerator_set.all()]
+
+            hospitals_data.append({
+                'id': hospital.id,
+                'name': hospital.name,
+                'refrigerators': refrigerators_data
+            })
+
+        user_id = district.user.id
+
+        data.append({
+            'id': district.id,
+            'user_id': user_id,
+            'name': district.name,
+            'hospitals': hospitals_data,
+        })
+
+    print("data", data)
+
+    return data
+
 
 
 @csrf_exempt
