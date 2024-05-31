@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:logistics/main.dart';
 import 'package:logistics/screens/admin_page.dart';
 
-import '../models/user.dart';
-
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 import 'district_page.dart';
 import 'globals.dart' as globals;
@@ -25,7 +21,7 @@ class MyApp extends StatelessWidget {
 class UserAuthenticator {
   Future<int> validateCredentials(String username, String password) async {
     try {
-      var url = Uri.parse('http://localhost:8000/logistics/logIn/$username/$password');
+      var url = Uri.parse('http://10.0.2.2:8000/logistics/logIn/$username/$password');
       var response = await http.get(url);
       if (response.statusCode != 200) {
         return Future(() => -2);
