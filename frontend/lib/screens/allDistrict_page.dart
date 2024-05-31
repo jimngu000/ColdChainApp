@@ -8,7 +8,8 @@ import 'profile_page.dart';
 import 'globals.dart' as globals;
 
 Future<List<District>> getAllDistricts() async {
-  final response = await http.get(Uri.parse("http://localhost:8000/logistics/getAllDistricts"));
+  final response = await http
+      .get(Uri.parse("http://localhost:8000/logistics/getAllDistricts"));
   if (response.statusCode == 200) {
     List<dynamic> districtsJson = json.decode(response.body);
     return districtsJson.map((json) {
@@ -98,8 +99,12 @@ class _AllDistrictPageState extends State<AllDistrictPage> {
                           debugPrint('menu page to district page');
                           await Navigator.push(
                             context,
+                            // Commented by Hans, might need to change viewOnly if needed, since I am not sure what this page is for.
                             MaterialPageRoute(
-                                builder: (context) => HospitalPage(district: snapshot.data![idx])),
+                                builder: (context) => HospitalPage(
+                                      district: snapshot.data![idx],
+                                      viewOnly: false,
+                                    )),
                           );
                         },
                       ),

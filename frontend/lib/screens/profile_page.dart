@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart';
+import 'globals.dart' as globals;
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -11,27 +12,33 @@ class ProfilePage extends StatelessWidget {
         elevation: 0.0,
         leading: IconButton(
           icon: const Icon(Icons.keyboard_arrow_left),
-          onPressed: () async {
+          onPressed: () {
             debugPrint('Pop back');
             Navigator.of(context).pop();
           },
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
-        child: ListView(
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: CircleAvatar(child: Placeholder(),),
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
-              child: Text('Some personal info'),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
-              child: ElevatedButton(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                radius: 50,
+                child: Text(
+                  globals.username[0], // Display the first letter of the user's name
+                  style: TextStyle(fontSize: 40),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                globals.username,
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
                 child: const Text('Sign out'),
                 onPressed: () {
                   debugPrint('Sign out button pressed');
@@ -41,8 +48,8 @@ class ProfilePage extends StatelessWidget {
                   );
                 },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

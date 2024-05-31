@@ -9,47 +9,17 @@ import 'models/district.dart';
 import 'models/hospital.dart';
 import 'models/refrigerator.dart';
 import 'models/vaccine.dart';
-import 'screens/district_page.dart';
-import 'utils/vaccine_db_helper.dart';
+import 'services/route_observer.dart';
 import "screens/login_page.dart";
 
 void main() async {
 
   runApp(MyApp());
-
-  // test code
-  var v1 = Vaccine(
-      name: 'vv1',
-      producer: 'vv1p',
-      type: 'd',
-      amount: 10,
-      hospital: 'h1',
-      refrigeratorId: 1,
-      refrigerator: 'r1',
-      other: '');
-
-  final VaccineDatabaseHelper qVaccineDatabaseHelper = VaccineDatabaseHelper();
-  await qVaccineDatabaseHelper.insertVaccine(v1);
 }
 
 class MyApp extends StatelessWidget {
 
   MyApp({super.key});
-
-  // test code
-  var fido = Refrigerator(
-    id: 1,
-    hospital: 2,
-    name: "fridge2",
-    model_id: "model2",
-    manufacturer: "maker2",
-    temp_monitor_installed: true,
-    monitor_type: "type1",
-    monitor_working: true,
-    voltage_regulator_installed: true,
-    regulator_type: "type1",
-    vaccine_count: 100
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +32,7 @@ class MyApp extends StatelessWidget {
             child: LoginPage()
           // child: DistrictPage()
         ),
+        navigatorObservers: [routeObserver],
       ),
     );
   }

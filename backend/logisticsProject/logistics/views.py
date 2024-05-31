@@ -105,23 +105,31 @@ def logOut(request):
     return HttpResponse("OK")
 
 def logIn(request, username, password):
+
     try:
         user = User.objects.get(username=username)
+
     except User.DoesNotExist:
-        return HttpResponse("-1,,-1")
+        return JsonResponse({'role': None, 'errorMessage': 'user does not exist', 'districts': None, 'userID': None})
+    
     if user.password == password:
+
         if user.is_system_admin:
-            return HttpResponse(str(user.id) + "," + username + "," + "2")  # System admin
+            return JsonResponse({'role': 'admin', 'errorMessage': None, 'districts': None, 'userID': user.id})
         
+        else:
+            districts = fetchDistricts()
+            return JsonResponse({'role': 'user', 'errorMessage': None, 'districts': districts, 'userID': user.id})
+    
+    else:
+    
+        return JsonResponse({'role': None, 'errorMessage': 'password does not match', 'districts': None, 'userID': user.id})
 
-        return HttpResponse(str(user.id) + "," + username + "," + "1")  # DM
-    return HttpResponse("-1,,-1")  # unauthorized
+def fetchDistricts():
 
-def fetchUserData(username):
-
-    user = User.objects.get(username=username)
-    districts = District.objects.filter(user=user).prefetch_related(
-        'hospital_set__refrigerator_set'
+    districts = District.objects.all().prefetch_related(
+        'hospital_set__refrigerator_set',
+        'user'
     )
 
     data = []
@@ -147,13 +155,18 @@ def fetchUserData(username):
                 'refrigerators': refrigerators_data
             })
 
+        user_id = district.user.id
+
         data.append({
             'id': district.id,
+            'user_id': user_id,
             'name': district.name,
-            'hospitals': hospitals_data
+            'hospitals': hospitals_data,
         })
 
-    return JsonResponse({'districts': data})
+    print("data", data)
+
+    return data
 
 
 

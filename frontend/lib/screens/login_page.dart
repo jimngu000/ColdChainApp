@@ -5,6 +5,10 @@ import 'package:http/http.dart' as http;
 
 import 'district_page.dart';
 import 'globals.dart' as globals;
+import 'dart:convert';
+
+import 'package:logistics/services/database_service.dart';
+
 
 void main() => runApp(MyApp());
 
@@ -19,23 +23,44 @@ class MyApp extends StatelessWidget {
 }
 
 class UserAuthenticator {
+
   Future<int> validateCredentials(String username, String password) async {
     try {
-      var url = Uri.parse('http://10.0.2.2:8000/logistics/logIn/$username/$password');
+      var url =
+      Uri.parse('http://10.0.2.2:8000/logistics/logIn/$username/$password');
       var response = await http.get(url);
+
       if (response.statusCode != 200) {
-        return Future(() => -2);
+        return Future(() => -2); // Network or server error
       }
-      var strArr = response.body.split(",");
-      globals.userId = int.parse(strArr[0]);
-      globals.username = strArr[1];
-      return Future(() => int.parse(strArr[2]));
+
+      var responseBody = jsonDecode(response.body);
+      var role = responseBody['role'];
+      var errorMessage = responseBody['errorMessage'];
+
+      if (errorMessage != null) {
+        print('Error: $errorMessage');
+        return Future(() => -2); // Authentication error
+      }
+
+      globals.userId = responseBody['userID'];
+      globals.username = username;
+
+      if (role == 'admin') {
+        return Future(() => 2);
+      } else if (role == 'user') {
+        var districts = responseBody['districts'];
+        await syncDataOnLogin(districts);
+        return Future(() => 1);
+      }
+      return Future(() => -2);
     } catch (e) {
       print('Error: $e');
       return Future(() => -2);
     }
   }
 }
+
 
 class LoginPage extends StatefulWidget {
   @override
