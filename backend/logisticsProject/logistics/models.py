@@ -46,11 +46,15 @@ class Log(models.Model):
     new_value = JSONField()
 
     # record the time when the log is recorded 
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField()
 
 
 class ConflictLog(models.Model):
     log = models.ForeignKey(Log, on_delete=models.CASCADE)
+
+class LatestFridgeUpdates(models.Model):
+    refrigerator = models.ForeignKey(Refrigerator, on_delete=models.CASCADE, null=True)
+    timestamp = models.DateTimeField()
 
 class Access(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

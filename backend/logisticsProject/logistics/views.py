@@ -1,6 +1,8 @@
 from django.core import serializers
 from django.core.serializers import serialize
-from .models import Hospital, District, User, Refrigerator, Log, ConflictLog, Access
+from django.utils import timezone
+
+from .models import Hospital, District, User, Refrigerator, Log, ConflictLog, Access, LatestFridgeUpdates
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -152,6 +154,21 @@ def getOneHospital(request, hospitalId):
     h = Hospital.objects.filter(id=hospitalId)
     return HttpResponse(serialize('json', h), content_type="application/json")
 
+@csrf_exempt
+def logSolvers(request):
+    if request.method == 'POST':
+        logs = serializers.deserialize('json', request.body)
+        # for log in log_solver_list:
+        refrigerators_to_update = []
+        for log in logs:
+            refrigerators_to_update.append(log.refrigerator)
+        latestFridges = LatestFridgeUpdates.objects.all()
+        for log in logs:
+            refrigerator = log.refrigerator
+            latestUpdate = LatestFridgeUpdates.objects.get(pk=refrigerator)
+
+
+
 
 @csrf_exempt
 def updateFridge(request, userId):
@@ -170,6 +187,7 @@ def updateFridge(request, userId):
             return HttpResponse("Failed to update fridge")
         hospital = fridge_instance.hospital
         district = hospital.district
+        timestamp = timezone.now()
         caller = User.objects.get(pk=user_id)
         if caller is None:
             return HttpResponse("User does not exist")
@@ -178,7 +196,7 @@ def updateFridge(request, userId):
             return HttpResponse("Fridge does not exist")
         log = Log(user=caller, district=district, hospital=hospital,
                   refrigerator=fridge_instance, previous_value=serialize("json", [old_fridge]),
-                  new_value=serialize("json", [fridge_instance]))
+                  new_value=serialize("json", [fridge_instance]), timestamp=timestamp)
         fridge_instance.save()
         # conflict occurs if the hospital being pushed to is in someone else's assigned district
         # This does not account for synchronization issues. Only when a user pushes to another person's hospital
