@@ -7,10 +7,24 @@ import 'package:logistics/models/hospital.dart';
 import 'dart:convert';
 
 import '../models/conflictlog.dart';
+import '../models/district.dart';
 import '../models/log.dart';
 import '../models/user.dart';
 import '../models/access.dart';
 import 'log_page.dart';
+
+Future<List<District>> getAllDistricts() async {
+  final response =
+  await http.get(Uri.parse("http://10.0.2.2:8000/logistics/getAllDistricts"));
+  if (response.statusCode == 200) {
+    List<dynamic> dJson = json.decode(response.body);
+    return dJson.map((json) {
+      return District.fromJson(json);
+    }).toList();
+  } else {
+    throw Exception('Failed to load districts');
+  }
+}
 
 Future<List<Hospital>> getAllHospitals() async {
   final response =
@@ -95,11 +109,11 @@ class SystemAdministratorPage extends StatefulWidget {
 
 class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
   User? selectedUser;
-  Hospital? selectedHospital;
+  District? selectedDistrict;
   late Future<List<Access>?> _accessFuture;
   late Future<List<Log>?> _logFuture;
   late Future<List<int>?> _conflictFuture;
-  late Future<List<Hospital>?> _hospitalsFuture;
+  late Future<List<District>?> _districtsFuture;
   late Future<List<User>?> _usersFuture;
   bool _isAccessExpanded = false;
   bool _isLogExpanded = false;
@@ -111,7 +125,7 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
     _accessFuture = _loadAccess();
     _logFuture = _loadLog();
     _conflictFuture = _loadConflict();
-    _hospitalsFuture = _loadHospitals();
+    _districtsFuture = _loadDistricts();
     _usersFuture = _loadUsers();
   }
 
@@ -120,13 +134,13 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
     super.dispose();
   }
 
-  Future<List<Hospital>?> _loadHospitals() async {
+  Future<List<District>?> _loadDistricts() async {
     try {
-      // Fetch hospitals from the API
-      List<Hospital> hospitals = await getAllHospitals();
-      return hospitals;
+      // Fetch districts from the API
+      List<District> ds = await getAllDistricts();
+      return ds;
     } catch (e) {
-      print('Failed to fetch or save hospitals: $e');
+      print('Failed to fetch or save districts: $e');
       return Future.error('Failed to load data');
     }
   }
@@ -221,7 +235,7 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
                           elevation: 2.0,
                           child: ListTile(
                             // permission content
-                            title: Text("${snapshot.data![idx].name} district id: ${snapshot.data![idx].district} hospital id: ${snapshot.data![idx].hospital}"),
+                            title: Text("${snapshot.data![idx].name} district id: ${snapshot.data![idx].district}"),
                             onTap: null, // modify this if we want to do something with the permission
                           ),
                         ),
@@ -344,12 +358,12 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
                   },
                 ),
                 SizedBox(width: 10,),
-                HospitalDropdownMenu(
-                  selectedHospital: selectedHospital,
-                  itemsFuture: _hospitalsFuture,
+                DistrictDropdownMenu(
+                  selectedDistrict: selectedDistrict,
+                  itemsFuture: _districtsFuture,
                   onChanged: (value) {
                     setState(() {
-                      selectedHospital = value;
+                      selectedDistrict = value;
                     });
                   },
                 ),
@@ -367,11 +381,11 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
                     if (selectedUser != null) {
                       print('Selected Manager: $selectedUser');
                       // update access db
-                      Access newAccess = Access(name: selectedUser!.username, user: selectedUser!.id, hospital: selectedHospital!.id);
+                      Access newAccess = Access(name: selectedUser!.username, user: selectedUser!.id, district: selectedDistrict!.id);
                       String jsonBody = jsonEncode(newAccess.toJson());
                       jsonBody = "[$jsonBody]";
                       final response = await http.post(
-                        Uri.parse('http://10.0.2.2:8000/logistics/addAccess'),
+                        Uri.parse('http://10.0.2.2:8000/logistics/addAccess/${selectedUser!.id}/${selectedDistrict!.id}'),
                         headers: {
                           'Content-Type': 'application/json',
                         },
@@ -397,20 +411,20 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
 }
 
 
-class HospitalDropdownMenu extends StatelessWidget {
-  final Future<List<Hospital>?> itemsFuture;
-  final Function(Hospital?) onChanged;
-  final Hospital? selectedHospital;
+class DistrictDropdownMenu extends StatelessWidget {
+  final Future<List<District>?> itemsFuture;
+  final Function(District?) onChanged;
+  final District? selectedDistrict;
 
-  const HospitalDropdownMenu({
+  const DistrictDropdownMenu({
     required this.itemsFuture,
     required this.onChanged,
-    required this.selectedHospital,
+    required this.selectedDistrict,
   });
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Hospital>?>(
+    return FutureBuilder<List<District>?>(
       future: itemsFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -420,11 +434,11 @@ class HospitalDropdownMenu extends StatelessWidget {
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return Text('No items available');
         } else {
-          return DropdownMenu<Hospital>(
-            label: Text(selectedHospital?.name ?? "Choose a hospital"),
+          return DropdownMenu<District>(
+            label: Text(selectedDistrict?.name ?? "Choose a district"),
             onSelected: onChanged,
-            dropdownMenuEntries: snapshot.data!.map<DropdownMenuEntry<Hospital>>((Hospital value) {
-              return DropdownMenuEntry<Hospital>(
+            dropdownMenuEntries: snapshot.data!.map<DropdownMenuEntry<District>>((District value) {
+              return DropdownMenuEntry<District>(
                 value: value,
                 label: value.name,
               );

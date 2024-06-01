@@ -71,7 +71,10 @@ def addFridge(request):
     return HttpResponse("OK")
 
 @csrf_exempt
-def addAccess(request):
+def addAccess(request, userId, districtId):
+    aList = Access.objects.filter(user=userId, district=districtId)
+    if aList.exists():
+        return HttpResponse("OK")
     if request.method == 'POST':
         for obj in serializers.deserialize("json", request.body):
             user_instance = obj.object  # Get the deserialized object

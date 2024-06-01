@@ -23,7 +23,7 @@ urlpatterns = [
     path("getDistrictAssignments/<int:userId>/", views.getDistrictAssignments, name="getDistrictAssignments"),
     path("getRefrigerators/<int:hospitalId>/", views.getRefrigerators, name="getRefrigerators"),
     path("getAllAccess", views.getAllAccess, name="getAllAccess"),
-    path("addAccess", views.addAccess, name="addAccess"),
+    path("addAccess/<int:userId>/<int:districtId>", views.addAccess, name="addAccess"),
     path("getAccessHospitalAssignments/<int:userId>/", views.getAccessHospitalAssignments, name="getAccessHospitalAssignments"),
     path("getOneHospital/<int:hospitalId>/", views.getOneHospital, name="getOneHospital"),
 ]
