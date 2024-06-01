@@ -1,7 +1,6 @@
 from django.db import models
 from django.db.models import JSONField
 
-
 # User model
 class User(models.Model):
     username = models.CharField(max_length=201)
@@ -47,7 +46,6 @@ class Log(models.Model):
 
     # record the time when the log is recorded 
     timestamp = models.DateTimeField()
-
 
 class ConflictLog(models.Model):
     log = models.ForeignKey(Log, on_delete=models.CASCADE)

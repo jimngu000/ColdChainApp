@@ -6,7 +6,7 @@ class Access {
   final String name;
 
   Access({this.id, // primary key
-            required this.user,
+            this.user,
             this.district,
             this.hospital,
             required this.name});

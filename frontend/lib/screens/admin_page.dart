@@ -6,8 +6,11 @@ import 'package:http/http.dart' as http;
 import 'package:logistics/models/hospital.dart';
 import 'dart:convert';
 
+import '../models/conflictlog.dart';
+import '../models/log.dart';
 import '../models/user.dart';
 import '../models/access.dart';
+import 'log_page.dart';
 
 Future<List<Hospital>> getAllHospitals() async {
   final response =
@@ -27,9 +30,14 @@ Future<List<User>> getAllUserInfo() async {
   await http.get(Uri.parse("http://10.0.2.2:8000/logistics/getAllUserInfo"));
   if (response.statusCode == 200) {
     List<dynamic> userJson = json.decode(response.body);
-    return userJson.map((json) {
-      return User.fromJson(json);
-    }).toList();
+    List<User> users = [];
+    for (int i = 0; i < userJson.length; i ++) {
+      User tmp = User.fromJson(userJson[i]);
+      if (tmp.username != "admin") {
+        users.add(tmp);
+      }
+    }
+    return users;
   } else {
     throw Exception('Failed to load users');
   }
@@ -48,20 +56,34 @@ Future<List<Access>> getAllAccess() async {
   }
 }
 
-void main() {
-  runApp(MyApp());
+Future<List<Log>> getAllLog() async {
+  final response =
+  await http.get(Uri.parse("http://10.0.2.2:8000/logistics/getLog"));
+  if (response.statusCode == 200) {
+    List<dynamic> logJson = json.decode(response.body);
+    return logJson.map((j) {
+      return Log.fromJson(j);
+    }).toList();
+  } else {
+    throw Exception("Fail to load log");
+  }
 }
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Manager Management',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: SystemAdministratorPage(),
-    );
+Future<List<int>> getAllConflict() async {
+  final response =
+  await http.get(Uri.parse("http://10.0.2.2:8000/logistics/getConflictLog"));
+  if (response.statusCode == 200) {
+    List<dynamic> logJson = json.decode(response.body);
+    List<ConflictLog> conflicts = logJson.map((j) {
+      return ConflictLog.fromJson(j);
+    }).toList();
+    List<int> logIds = [];
+    for (int i = 0; i < conflicts.length; i ++) {
+      logIds.add(conflicts[i].log);
+    }
+    return logIds;
+  } else {
+    throw Exception("Fail to load conflict log");
   }
 }
 
@@ -74,7 +96,29 @@ class SystemAdministratorPage extends StatefulWidget {
 class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
   User? selectedUser;
   Hospital? selectedHospital;
-  late Future<List<Access>?> accessList;
+  late Future<List<Access>?> _accessFuture;
+  late Future<List<Log>?> _logFuture;
+  late Future<List<int>?> _conflictFuture;
+  late Future<List<Hospital>?> _hospitalsFuture;
+  late Future<List<User>?> _usersFuture;
+  bool _isAccessExpanded = false;
+  bool _isLogExpanded = false;
+  bool _isConflictLogExpanded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _accessFuture = _loadAccess();
+    _logFuture = _loadLog();
+    _conflictFuture = _loadConflict();
+    _hospitalsFuture = _loadHospitals();
+    _usersFuture = _loadUsers();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   Future<List<Hospital>?> _loadHospitals() async {
     try {
@@ -109,6 +153,26 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
     }
   }
 
+  Future<List<Log>?> _loadLog() async {
+    try {
+      List<Log> log = await getAllLog();
+      return log;
+    } catch(e) {
+      print('Failed to fetch or save log: $e');
+      return Future.error('Failed to load data');
+    }
+  }
+
+  Future <List<int>?> _loadConflict() async {
+    try {
+      List<int> log = await getAllConflict();
+      return log;
+    } catch(e) {
+      print('Failed to fetch or save log: $e');
+      return Future.error('Failed to load data');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -116,13 +180,153 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
       Navigator.of(context).pop();
     }
 
-    accessList = _loadAccess();
-
     return Scaffold(
       appBar: AppBar(
         title: Text('System Administrator '),
       ),
-      body: ListViewWithFutureAccess(futureList: accessList,),
+      body: //ListViewWithFutureAccess(futureList: accessList,),
+        SingleChildScrollView(
+          child: Column(
+            children:[
+              ListTile( // Access
+                title: Text("Permission"),
+                trailing: Icon(
+                  _isAccessExpanded
+                    ? Icons.expand_less
+                    : Icons.expand_more,
+                ),
+                onTap: () {
+                  setState(() {
+                    _isAccessExpanded = !_isAccessExpanded;
+                  });
+                },
+              ),
+              if (_isAccessExpanded)
+                FutureBuilder<List<Access>?>(
+                  future: _accessFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                    }
+                    if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    }
+                    if (snapshot.hasData && snapshot.data != null) {
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (context, idx) => Card(
+                          color: Theme.of(context).colorScheme.primaryContainer,
+                          elevation: 2.0,
+                          child: ListTile(
+                            // permission content
+                            title: Text("${snapshot.data![idx].name} district id: ${snapshot.data![idx].district} hospital id: ${snapshot.data![idx].hospital}"),
+                            onTap: null, // modify this if we want to do something with the permission
+                          ),
+                        ),
+                      );
+                    }
+                    return const Center(child: Text('No Data'));
+                  },
+                ),
+              ListTile( // logs
+                title: Text("Log"),
+                trailing: Icon(
+                  _isLogExpanded
+                    ? Icons.expand_less
+                    : Icons.expand_more,
+                ),
+                onTap: () {
+                  setState(() {
+                    _isLogExpanded = !_isLogExpanded;
+                  });
+                },
+              ),
+              if (_isLogExpanded)
+                FutureBuilder<List<Log>?>(
+                  future: _logFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                    }
+                    if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    }
+                    if (snapshot.hasData && snapshot.data != null) {
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (context, idx) => Card(
+                          color: Theme.of(context).colorScheme.primaryContainer,
+                          elevation: 2.0,
+                          child: ListTile(
+                            // log content
+                            title: Text('''${snapshot.data![idx].id} user id: ${snapshot.data![idx].user}
+                              district id: ${snapshot.data![idx].district} hospital id: ${snapshot.data![idx].hospital}
+                              refrigerator id: ${snapshot.data![idx].refrigerator} timestamp: ${snapshot.data![idx].timestamp}'''),
+                            onTap: () async {
+                              debugPrint('admin page to log page');
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => LogPage(log: snapshot.data![idx],),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    }
+                    return const Center(child: Text('No Logs'));
+                  },
+                ),
+              ListTile( // conflicts
+                title: Text("Conflicts"),
+                trailing: Icon(
+                  _isConflictLogExpanded
+                    ? Icons.expand_less
+                    : Icons.expand_more,
+                ),
+                onTap: () {
+                  setState(() {
+                    _isConflictLogExpanded = !_isConflictLogExpanded;
+                  });
+                },
+              ),
+              if (_isConflictLogExpanded)
+                FutureBuilder<List<int>?>(
+                  future: _conflictFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                    }
+                    if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    }
+                    if (snapshot.hasData && snapshot.data != null) {
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (context, idx) => Card(
+                          color: Theme.of(context).colorScheme.primaryContainer,
+                          elevation: 2.0,
+                          child: ListTile(
+                            // permission content
+                            title: Text("Log id: ${snapshot.data![idx]}"),
+                            onTap: null, // modify this if we want to do something with the permission
+                          ),
+                        ),
+                      );
+                    }
+                    return const Center(child: Text('No Data'));
+                  },
+                ),
+            ]
+          ),
+        ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showDialog(
@@ -132,7 +336,7 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
               content: Row(
                 children: [UserDropdownMenu(
                   selectedUser: selectedUser,
-                  itemsFuture: _loadUsers(),
+                  itemsFuture: _usersFuture,
                   onChanged: (value) {
                     setState(() {
                       selectedUser = value;
@@ -142,7 +346,7 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
                 SizedBox(width: 10,),
                 HospitalDropdownMenu(
                   selectedHospital: selectedHospital,
-                  itemsFuture: _loadHospitals(),
+                  itemsFuture: _hospitalsFuture,
                   onChanged: (value) {
                     setState(() {
                       selectedHospital = value;
@@ -174,7 +378,7 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
                         body: jsonBody,
                       );
                       setState(() {
-                        accessList = _loadAccess();
+                        _accessFuture = _loadAccess();
                       });
                       print(response.body);
                       _cancel();
@@ -266,39 +470,6 @@ class UserDropdownMenu extends StatelessWidget {
               );
             }).toList(),
           );
-        }
-      },
-    );
-  }
-}
-
-class ListViewWithFutureAccess extends StatelessWidget {
-  final Future<List<Access>?> futureList;
-
-  ListViewWithFutureAccess({required this.futureList});
-
-  @override
-  Widget build(BuildContext context) {
-    return  FutureBuilder<List<Access>?>(
-      future: futureList,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (snapshot.hasData) {
-          return ListView.builder(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-              return Card(
-                child: ListTile(
-                  title: Text("${snapshot.data![index].name} district id: ${snapshot.data![index].district} hospital id: ${snapshot.data![index].hospital}"),
-                ),
-              );
-            },
-          );
-        } else {
-          return Center(child: Text('No data available'));
         }
       },
     );
