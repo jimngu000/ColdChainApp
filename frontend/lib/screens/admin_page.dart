@@ -12,6 +12,7 @@ import '../models/log.dart';
 import '../models/user.dart';
 import '../models/access.dart';
 import 'log_page.dart';
+import 'profile_page.dart';
 
 Future<List<District>> getAllDistricts() async {
   final response =
@@ -196,7 +197,27 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('System Administrator '),
+        elevation: 0.0,
+        backgroundColor: Colors.transparent,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'System Administrator',
+              textAlign: TextAlign.center,
+            ),
+            const Spacer(),
+            IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProfilePage()),
+                );
+              },
+              icon: const Icon(Icons.person),
+            ),
+          ],
+        ),
       ),
       body: //ListViewWithFutureAccess(futureList: accessList,),
         SingleChildScrollView(
