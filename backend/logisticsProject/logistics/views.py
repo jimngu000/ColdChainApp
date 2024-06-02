@@ -1,6 +1,10 @@
+from datetime import datetime
 from django.core import serializers
 from django.core.serializers import serialize
+import json
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
+from datetime import datetime, timezone
 
 from .models import Hospital, District, User, Refrigerator, Log, ConflictLog, Access, LatestFridgeUpdates
 from django.http import HttpResponse
@@ -210,6 +214,63 @@ def getOneHospital(request, hospitalId):
     h = Hospital.objects.filter(id=hospitalId)
     return HttpResponse(serialize('json', h), content_type="application/json")
 
+
+@csrf_exempt
+def addLog(request):
+    if request.method == 'POST':
+        try:
+            logs = json.loads(request.body)
+        except json.JSONDecodeError as e:
+            return HttpResponse(f"Failed to parse JSON data: {e}", status=400)
+        for log in logs:
+            try:
+                user = User.objects.get(id=log['user'])
+                district = District.objects.get(id=log['district'])
+                hospital = Hospital.objects.get(id=log['hospital'])
+                refrigerator = Refrigerator.objects.get(id=log['refrigerator']) if 'refrigerator' in log else None
+                previous_value = json.loads(log.get('previous_value', '{}'))
+                new_value = json.loads(log.get('new_value', '{}'))
+                timestamp = parse_datetime(log.get('timestamp'))
+                log_obj = Log(
+                    user=user,
+                    district=district,
+                    hospital=hospital,
+                    refrigerator=refrigerator,
+                    previous_value=previous_value,
+                    new_value=new_value,
+                    timestamp=timestamp  # or use the timestamp from the log if provided
+                )
+                log_obj.save()
+                if user != district.user:
+                    conflict_log = ConflictLog(log=log)
+                    conflict_log.save()
+                if LatestFridgeUpdates.objects.filter(refrigerator=refrigerator).exists():
+                    latest_update = LatestFridgeUpdates.objects.get(refrigerator=refrigerator)
+                    previous_time = latest_update.timestamp
+                    timestamp_utc = timestamp.replace(tzinfo=timezone.utc)  # timezone workaround
+                    if previous_time < timestamp_utc:
+                        for key, value in new_value.items():
+                            setattr(refrigerator, key, value)
+                        refrigerator.save()
+                        latest_update.timestamp = timestamp
+                        latest_update.save()
+                else:
+                    latest_update = LatestFridgeUpdates(refrigerator=refrigerator, timestamp=timestamp)
+                    for key, value in new_value.items():
+                        setattr(refrigerator, key, value)
+                    refrigerator.save()
+                    latest_update.save()
+            except json.JSONDecodeError as e:
+                return HttpResponse(f"Failed to parse log values: {e}", status=400)
+            except (User.DoesNotExist, District.DoesNotExist, Hospital.DoesNotExist, Refrigerator.DoesNotExist) as e:
+                return HttpResponse(f"Related entity not found: {e}", status=400)
+            except Exception as e:
+                return HttpResponse(f"An error occurred: {e}", status=500)
+        return HttpResponse("Logs processed successfully")
+    else:
+        return HttpResponse("Only POST requests are allowed", status=405)
+
+
 @csrf_exempt
 def logSolvers(request):
     if request.method == 'POST':
@@ -222,9 +283,12 @@ def logSolvers(request):
         for log in logs:
             refrigerator = log.refrigerator
             latestUpdate = LatestFridgeUpdates.objects.get(pk=refrigerator)
+    return HttpResponse("OK")
 
 
-
+def updateLocal(request):
+    districts = fetchDistricts()
+    return JsonResponse({'districts': districts})
 
 @csrf_exempt
 def updateFridge(request, userId):

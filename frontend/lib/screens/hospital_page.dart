@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -41,7 +40,7 @@ class HospitalPage extends StatefulWidget {
 class _HospitalPageState extends State<HospitalPage> {
   late Future<List<Hospital>?> _hospitalsFuture;
   bool _hasInternetConnection = true;
-  StreamSubscription<ConnectivityResult>? _connectivitySubscription;
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
 
   @override
   void initState() {
@@ -63,9 +62,9 @@ class _HospitalPageState extends State<HospitalPage> {
     });
 
     _connectivitySubscription =
-        Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+        Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
           setState(() {
-            _hasInternetConnection = result != ConnectivityResult.none;
+            _hasInternetConnection = result.contains(ConnectivityResult.none) ? false : true;
           });
         });
   }
@@ -166,7 +165,7 @@ class _HospitalPageState extends State<HospitalPage> {
             final db = await getDatabase();
             final List<Map<String, dynamic>> logs = await db.query('logs');
             final List<Log> logList = logs.map((log) => Log.fromJson(log)).toList();
-            final url = Uri.parse("http://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/addLog");
+            final url = Uri.parse("https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/addLog");
             final response = await http.post(
               url,
               headers: {
