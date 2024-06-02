@@ -35,7 +35,6 @@ Future<void> updateRefrigeratorInDb(
 
   final log = Log(
     user: globals.userId,
-    // Replace with actual user ID
     district: districtID,
     hospital: newRefrigerator.hospitalId,
     refrigerator: newRefrigerator.id,
@@ -230,7 +229,7 @@ class _RefrigeratorDetailPageState extends State<RefrigeratorDetailPage> {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: widget.ownership ? _saveChanges : null,
+                onPressed: _saveChanges,
                 child: const Text('Save Changes'),
               ),
             ],
