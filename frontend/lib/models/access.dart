@@ -43,7 +43,7 @@ class Access {
   // for print
   @override
   String toString() {
-    return 'District{id: $id, name: $name, user: $user, district: $district, hospital: $hospital}';
+    return 'Access{id: $id, name: $name, user: $user, district: $district, hospital: $hospital}';
   }
 
 }

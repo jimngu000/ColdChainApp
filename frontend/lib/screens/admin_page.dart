@@ -76,9 +76,11 @@ Future<List<Log>> getAllLog() async {
   await http.get(Uri.parse("https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/getLog"));
   if (response.statusCode == 200) {
     List<dynamic> logJson = json.decode(response.body);
-    return logJson.map((j) {
-      return Log.fromJson(j);
-    }).toList();
+    List<Log> logs = [];
+    for (int i = 0; i < logJson.length; i ++) {
+      logs.add(Log.fromJson(logJson[i]));
+    }
+    return logs;
   } else {
     throw Exception("Fail to load log");
   }
@@ -209,6 +211,7 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
             const Spacer(),
             IconButton(
               onPressed: () {
+                debugPrint("Admin to Profile");//del
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => ProfilePage()),
@@ -219,7 +222,7 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
           ],
         ),
       ),
-      body: //ListViewWithFutureAccess(futureList: accessList,),
+      body:
         SingleChildScrollView(
           child: Column(
             children:[
@@ -298,11 +301,11 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
                           elevation: 2.0,
                           child: ListTile(
                             // log content
-                            title: Text('''${snapshot.data![idx].id} user id: ${snapshot.data![idx].user}
-                              district id: ${snapshot.data![idx].district} hospital id: ${snapshot.data![idx].hospital}
-                              refrigerator id: ${snapshot.data![idx].refrigerator} timestamp: ${snapshot.data![idx].timestamp}'''),
+                            title: Text("${snapshot.data![idx].id} user id: ${snapshot.data![idx].user} "
+                            "district id: ${snapshot.data![idx].district} hospital id: ${snapshot.data![idx].hospital} "
+                            "refrigerator id: ${snapshot.data![idx].refrigerator} timestamp: ${snapshot.data![idx].timestamp}"),
                             onTap: () async {
-                              debugPrint('admin page to log page');
+                              debugPrint("FFFFF ${snapshot.data![idx].previousValue}"); //del
                               await Navigator.push(
                                 context,
                                 MaterialPageRoute(
