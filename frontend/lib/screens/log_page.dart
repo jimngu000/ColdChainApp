@@ -80,67 +80,69 @@ class _LogPageState extends State<LogPage> {
           ),
         ),
       ),
-      body: Center(
-        child: Column(
-          children: [
-            ListTile(
-              title: Text("Before Change:"),
-            ),
-            SizedBox(height: 8,),
-            // THIS IS FOR PREVIOUS VALUE AS LIST
-            /*
-            ListView(
-              children: widget.log.previousValue.entries
-                .map((entry) => ListTile(
-                  title: Text(entry.key),
-                  subtitle: Text(entry.value.toString()),
-                  ))
-                .toList(),
-            ),
-            */
-            Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                jsonEncode(widget.log.previousValue),
-                style: TextStyle(fontSize: 20.0),
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            children: [
+              ListTile(
+                title: Text("Before Change:"),
               ),
-            ),
-            SizedBox(height: 16,),
-            ListTile(
-              title: Text("After Change:"),
-            ),
-            SizedBox(height: 8,),
-            // THIS IS FOR NEW VALUE AS LIST
-            /*
-            ListView(
-              children: widget.log.newValue.entries
-                .map((entry) => ListTile(
-                  title: Text(entry.key),
-                  subtitle: Text(entry.value.toString()),
-                  ))
-                .toList(),
-            ),
-            */
-            Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                jsonEncode(widget.log.newValue),
-                style: TextStyle(fontSize: 20.0),
+              SizedBox(height: 8,),
+              // THIS IS FOR PREVIOUS VALUE AS LIST
+              /*
+              ListView(
+                children: widget.log.previousValue.entries
+                  .map((entry) => ListTile(
+                    title: Text(entry.key),
+                    subtitle: Text(entry.value.toString()),
+                    ))
+                  .toList(),
               ),
-            ),
-            SizedBox(height: 16,),
-            ListTile(
-              title: Text("Changes:"),
-            ),
-            SizedBox(height: 8,),
-            Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                findDifferences(widget.log.previousValue, widget.log.newValue),
-                style: TextStyle(fontSize: 20.0),
+              */
+              Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text(
+                  jsonEncode(widget.log.previousValue),
+                  style: TextStyle(fontSize: 20.0),
+                ),
               ),
-            ),
-          ],
+              SizedBox(height: 16,),
+              ListTile(
+                title: Text("After Change:"),
+              ),
+              SizedBox(height: 8,),
+              // THIS IS FOR NEW VALUE AS LIST
+              /*
+              ListView(
+                children: widget.log.newValue.entries
+                  .map((entry) => ListTile(
+                    title: Text(entry.key),
+                    subtitle: Text(entry.value.toString()),
+                    ))
+                  .toList(),
+              ),
+              */
+              Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text(
+                  jsonEncode(widget.log.newValue),
+                  style: TextStyle(fontSize: 20.0),
+                ),
+              ),
+              SizedBox(height: 16,),
+              ListTile(
+                title: Text("Changes:"),
+              ),
+              SizedBox(height: 8,),
+              Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text(
+                  findDifferences(widget.log.previousValue, widget.log.newValue),
+                  style: TextStyle(fontSize: 20.0),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

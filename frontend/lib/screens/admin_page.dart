@@ -14,6 +14,26 @@ import '../models/access.dart';
 import 'log_page.dart';
 import 'profile_page.dart';
 
+Log jsonToLog(Map<String, dynamic> j) {
+  // Safely get the 'fields' map
+  final fields = j['fields'] ?? {};
+
+  return Log(
+    id: j['pk'],
+    user: j["fields"]['user'] ?? -1,
+    district: j["fields"]['district'] ?? -1,
+    hospital: j["fields"]['hospital'] ?? -1,
+    refrigerator: j["fields"]['refrigerator'],
+    previousValue: fields['previous_value'] is String 
+        ? jsonDecode(fields['previous_value']) 
+        : fields['previous_value'] ?? {},
+    newValue: fields['new_value'] is String 
+        ? jsonDecode(fields['new_value']) 
+        : fields['new_value'] ?? {},
+    timestamp: DateTime.parse(j["fields"]['timestamp']),
+  );
+}
+
 Future<List<District>> getAllDistricts() async {
   final response =
   await http.get(Uri.parse("https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/getAllDistricts"));
@@ -78,7 +98,7 @@ Future<List<Log>> getAllLog() async {
     List<dynamic> logJson = json.decode(response.body);
     List<Log> logs = [];
     for (int i = 0; i < logJson.length; i ++) {
-      logs.add(Log.fromJson(logJson[i]));
+      logs.add(jsonToLog(logJson[i]));
     }
     return logs;
   } else {
