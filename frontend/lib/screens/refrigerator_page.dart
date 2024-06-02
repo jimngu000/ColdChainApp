@@ -51,7 +51,7 @@ class RefrigeratorPage extends StatefulWidget {
 class _RefrigeratorPageState extends State<RefrigeratorPage> with RouteAware {
   late Future<List<Refrigerator>?> _refrigeratorsFuture;
   bool _hasInternetConnection = true;
-  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
+  StreamSubscription<ConnectivityResult>? _connectivitySubscription;
 
   @override
   void initState() {
@@ -89,9 +89,9 @@ class _RefrigeratorPageState extends State<RefrigeratorPage> with RouteAware {
     });
 
     _connectivitySubscription =
-        Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
+        Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
           setState(() {
-            _hasInternetConnection = result.contains(ConnectivityResult.none) ? false : true;
+            _hasInternetConnection = result != ConnectivityResult.none;
           });
         });
   }
@@ -192,7 +192,7 @@ class _RefrigeratorPageState extends State<RefrigeratorPage> with RouteAware {
             final db = await getDatabase();
             final List<Map<String, dynamic>> logs = await db.query('logs');
             final List<Log> logList = logs.map((log) => Log.fromJson(log)).toList();
-            final url = Uri.parse("https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/addLog");
+            final url = Uri.parse("http://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/addLog");
             final response = await http.post(
               url,
               headers: {
