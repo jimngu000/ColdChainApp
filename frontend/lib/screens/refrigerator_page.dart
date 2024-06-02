@@ -38,11 +38,14 @@ Future<List<Refrigerator>> getFridgesByHospitalIDFromDb(int hospitalID) async {
 
 class RefrigeratorPage extends StatefulWidget {
   final Hospital hospital;
-  final bool viewOnly;
+  final bool ownership;
   final int districtID;
 
   const RefrigeratorPage(
-      {super.key, required this.hospital, required this.viewOnly, required this.districtID});
+      {super.key,
+      required this.hospital,
+      required this.ownership,
+      required this.districtID});
 
   @override
   State<RefrigeratorPage> createState() => _RefrigeratorPageState();
@@ -88,12 +91,13 @@ class _RefrigeratorPageState extends State<RefrigeratorPage> with RouteAware {
       _hasInternetConnection = connectivityResult != ConnectivityResult.none;
     });
 
-    _connectivitySubscription =
-        Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
-          setState(() {
-            _hasInternetConnection = result != ConnectivityResult.none;
-          });
-        });
+    _connectivitySubscription = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
+      setState(() {
+        _hasInternetConnection = result != ConnectivityResult.none;
+      });
+    });
   }
 
   @override
@@ -153,12 +157,8 @@ class _RefrigeratorPageState extends State<RefrigeratorPage> with RouteAware {
                 elevation: 2.0,
                 child: ListTile(
                   title: Text(snapshot.data![idx].name),
-                  trailing: widget.viewOnly
-                      ? null
-                      : const Icon(Icons.keyboard_arrow_right),
-                  onTap: widget.viewOnly
-                      ? null
-                      : () {
+                  trailing: const Icon(Icons.keyboard_arrow_right),
+                  onTap: () {
                     debugPrint('Refrigerator ListTile is tapped');
                     Navigator.push(
                       context,
@@ -166,6 +166,7 @@ class _RefrigeratorPageState extends State<RefrigeratorPage> with RouteAware {
                         builder: (context) => RefrigeratorDetailPage(
                           refrigerator: snapshot.data![idx],
                           districtID: widget.districtID,
+                          ownership: widget.ownership,
                         ),
                       ),
                     ).then((_) {
@@ -181,29 +182,35 @@ class _RefrigeratorPageState extends State<RefrigeratorPage> with RouteAware {
           );
         },
       ),
-      floatingActionButton: widget.viewOnly
-          ? null
-          : Tooltip(
-        message: _hasInternetConnection ? 'Upload updates to backend database' : 'No Internet connection',
+      floatingActionButton: Tooltip(
+        message: _hasInternetConnection
+            ? 'Upload updates to backend database'
+            : 'No Internet connection',
         child: FloatingActionButton(
-          onPressed: _hasInternetConnection ? () async {
-            debugPrint('Upload button pressed');
-            // TODO: Mark, you should add logic here to upload logs to the backend database.
-            final db = await getDatabase();
-            final List<Map<String, dynamic>> logs = await db.query('logs');
-            final List<Log> logList = logs.map((log) => Log.fromJson(log)).toList();
-            final url = Uri.parse("http://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/addLog");
-            final response = await http.post(
-              url,
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: jsonEncode(logList),
-            );
-            print("");
-
-          } : null,
-          backgroundColor: _hasInternetConnection ? Theme.of(context).primaryColor : Colors.grey,
+          onPressed: _hasInternetConnection
+              ? () async {
+                  debugPrint('Upload button pressed');
+                  // TODO: Mark, you should add logic here to upload logs to the backend database.
+                  final db = await getDatabase();
+                  final List<Map<String, dynamic>> logs =
+                      await db.query('logs');
+                  final List<Log> logList =
+                      logs.map((log) => Log.fromJson(log)).toList();
+                  final url = Uri.parse(
+                      "http://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/addLog");
+                  final response = await http.post(
+                    url,
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: jsonEncode(logList),
+                  );
+                  print("");
+                }
+              : null,
+          backgroundColor: _hasInternetConnection
+              ? Theme.of(context).primaryColor
+              : Colors.grey,
           tooltip: 'Upload updates to backend database',
           child: const Icon(Icons.cloud_upload),
         ),

@@ -1,21 +1,14 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:logistics/screens/hospital_page.dart';
 import 'package:logistics/services/database_service.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import '../models/access.dart';
 import '../models/district.dart';
-import '../models/hospital.dart';
 import '../models/log.dart';
-import 'allDistrict_page.dart';
 import 'profile_page.dart';
 import 'globals.dart' as globals;
-import 'refrigerator_page.dart';
 
 Future<List<District>> getUserDistrictsFromDb() async {
-  /*
   final db = await getDatabase();
   final List<Map<String, dynamic>> maps = await db.query(
     'districts',
@@ -29,18 +22,6 @@ Future<List<District>> getUserDistrictsFromDb() async {
       name: maps[i]['name'],
     );
   });
-
-   */
-  String userId = globals.userId.toString();
-  final response = await http.get(Uri.parse("https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/getDistrictAssignments/$userId"));
-  if (response.statusCode == 200) {
-    List<dynamic> districtsJson = json.decode(response.body);
-    return districtsJson.map((json) {
-      return District.fromJson(json);
-    }).toList();
-  } else {
-    throw Exception('Failed to load districts');
-  }
 }
 
 Future<List<District>> getOtherUserDistrictsFromDb() async {
@@ -93,12 +74,13 @@ class _DistrictPageState extends State<DistrictPage> {
       _hasInternetConnection = connectivityResult != ConnectivityResult.none;
     });
 
-    _connectivitySubscription =
-        Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
-          setState(() {
-            _hasInternetConnection = result != ConnectivityResult.none;
-          });
-        });
+    _connectivitySubscription = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
+      setState(() {
+        _hasInternetConnection = result != ConnectivityResult.none;
+      });
+    });
   }
 
   Future<List<District>?> _loadDistricts() async {
@@ -183,7 +165,7 @@ class _DistrictPageState extends State<DistrictPage> {
                             MaterialPageRoute(
                               builder: (context) => HospitalPage(
                                   district: snapshot.data![idx],
-                                  viewOnly: false),
+                                  ownership: true),
                             ),
                           );
                         },
@@ -235,7 +217,7 @@ class _DistrictPageState extends State<DistrictPage> {
                               MaterialPageRoute(
                                 builder: (context) => HospitalPage(
                                     district: snapshot.data![idx],
-                                    viewOnly: true),
+                                    ownership: false),
                               ),
                             );
                           },
@@ -258,32 +240,48 @@ class _DistrictPageState extends State<DistrictPage> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Tooltip(
-                  message: _hasInternetConnection ? 'Pull updates from backend database' : 'No Internet connection',
+                  message: _hasInternetConnection
+                      ? 'Pull updates from backend database'
+                      : 'No Internet connection',
                   child: FloatingActionButton(
-                    onPressed: _hasInternetConnection ? () async {
-                      debugPrint('Download button pressed');
-                      setState(() {
-                        _districtsFuture = _loadDistricts();
-                      });
-                    } : null,
-                    backgroundColor: _hasInternetConnection ? Theme.of(context).primaryColor : Colors.grey,
+                    heroTag: 'download',
+                    onPressed: _hasInternetConnection
+                        ? () async {
+                            debugPrint('Download button pressed');
+                            setState(() {
+                              _districtsFuture = _loadDistricts();
+                            });
+                          }
+                        : null,
+                    backgroundColor: _hasInternetConnection
+                        ? Theme.of(context).primaryColor
+                        : Colors.grey,
                     tooltip: 'Pull updates from backend database',
                     child: const Icon(Icons.cloud_download),
                   ),
                 ),
                 SizedBox(width: 16), // Add spacing between the buttons
                 Tooltip(
-                  message: _hasInternetConnection ? 'Upload updates to backend database' : 'No Internet connection',
+                  message: _hasInternetConnection
+                      ? 'Upload updates to backend database'
+                      : 'No Internet connection',
                   child: FloatingActionButton(
-                    onPressed: _hasInternetConnection ? () async {
-                      debugPrint('Upload button pressed');
-                      // TODO: Mark, you should add logic here to upload logs to the backend database.
-                      final db = await getDatabase();
-                      final List<Map<String, dynamic>> logs = await db.query('logs');
-                      final List<Log> logList = logs.map((log) => Log.fromJson(log)).toList();
-                      print("");
-                    } : null,
-                    backgroundColor: _hasInternetConnection ? Theme.of(context).primaryColor : Colors.grey,
+                    heroTag: 'upload',
+                    onPressed: _hasInternetConnection
+                        ? () async {
+                            debugPrint('Upload button pressed');
+                            // TODO: Mark, you should add logic here to upload logs to the backend database.
+                            final db = await getDatabase();
+                            final List<Map<String, dynamic>> logs =
+                                await db.query('logs');
+                            final List<Log> logList =
+                                logs.map((log) => Log.fromJson(log)).toList();
+                            print("");
+                          }
+                        : null,
+                    backgroundColor: _hasInternetConnection
+                        ? Theme.of(context).primaryColor
+                        : Colors.grey,
                     tooltip: 'Upload updates to backend database',
                     child: const Icon(Icons.cloud_upload),
                   ),

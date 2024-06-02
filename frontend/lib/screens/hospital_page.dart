@@ -30,9 +30,9 @@ Future<List<Hospital>> getHospitalsByDistrictIDFromDb(int districtID) async {
 
 class HospitalPage extends StatefulWidget {
   final District district;
-  final bool viewOnly;
+  final bool ownership;
 
-  const HospitalPage({super.key, required this.district, required this.viewOnly});
+  const HospitalPage({super.key, required this.district, required this.ownership});
 
   @override
   State<HospitalPage> createState() => _HospitalPageState();
@@ -144,7 +144,7 @@ class _HospitalPageState extends State<HospitalPage> {
                       MaterialPageRoute(
                           builder: (context) => RefrigeratorPage(
                               hospital: snapshot.data![idx],
-                              viewOnly: widget.viewOnly,
+                              ownership: widget.ownership,
                               districtID: widget.district.id!)),
                     );
                   },

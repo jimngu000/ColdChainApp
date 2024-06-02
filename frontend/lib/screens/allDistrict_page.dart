@@ -99,11 +99,11 @@ class _AllDistrictPageState extends State<AllDistrictPage> {
                           debugPrint('menu page to district page');
                           await Navigator.push(
                             context,
-                            // Commented by Hans, might need to change viewOnly if needed, since I am not sure what this page is for.
+                            // Commented by Hans, might need to change ownership if needed, since I am not sure what this page is for.
                             MaterialPageRoute(
                                 builder: (context) => HospitalPage(
                                       district: snapshot.data![idx],
-                                      viewOnly: false,
+                                  ownership: false,
                                     )),
                           );
                         },
