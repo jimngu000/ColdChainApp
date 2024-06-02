@@ -22,22 +22,15 @@ class Log {
   });
 
   factory Log.fromJson(Map<String, dynamic> json) {
-    // Safely get the 'fields' map
-    final fields = json['fields'] ?? {};
-
     return Log(
-      id: json['pk'],
-      user: json["fields"]['user'] ?? -1,
-      district: json["fields"]['district'] ?? -1,
-      hospital: json["fields"]['hospital'] ?? -1,
-      refrigerator: json["fields"]['refrigerator'],
-      previousValue: fields['previous_value'] is String 
-          ? jsonDecode(fields['previous_value']) 
-          : fields['previous_value'] ?? {},
-      newValue: fields['new_value'] is String 
-          ? jsonDecode(fields['new_value']) 
-          : fields['new_value'] ?? {},
-      timestamp: DateTime.parse(json["fields"]['timestamp']),
+      id: json['id'],
+      user: json['user'],
+      district: json['district'],
+      hospital: json['hospital'],
+      refrigerator: json['refrigerator'],
+      previousValue: jsonDecode(json['previous_value']),
+      newValue: jsonDecode(json['new_value']),
+      timestamp: DateTime.parse(json['timestamp']),
     );
   }
 
@@ -52,11 +45,5 @@ class Log {
       'new_value': jsonEncode(newValue),
       'timestamp': timestamp.toIso8601String(),
     };
-  }
-
-  // for print
-  @override
-  String toString() {
-    return 'Log{id: $id, user id: $user, district id: $district, hospital id: $hospital, refrigerator id: $refrigerator, previous val: $previousValue, new val: $newValue, timestamp: $timestamp}';
   }
 }

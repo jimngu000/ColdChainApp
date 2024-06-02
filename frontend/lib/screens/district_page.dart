@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:logistics/screens/hospital_page.dart';
 import 'package:logistics/services/database_service.dart';
@@ -7,8 +8,15 @@ import '../models/district.dart';
 import '../models/log.dart';
 import 'profile_page.dart';
 import 'globals.dart' as globals;
+import 'package:http/http.dart' as http;
 
 Future<List<District>> getUserDistrictsFromDb() async {
+  var url = Uri.parse('https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/updateLocal');
+  var response = await http.get(url);
+  var responseBody = jsonDecode(response.body);
+  var districts = responseBody['districts'];
+  await syncDataOnLogin(districts);
+
   final db = await getDatabase();
   final List<Map<String, dynamic>> maps = await db.query(
     'districts',
