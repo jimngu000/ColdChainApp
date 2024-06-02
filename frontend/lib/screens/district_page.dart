@@ -15,7 +15,13 @@ import 'globals.dart' as globals;
 import 'refrigerator_page.dart';
 
 Future<List<District>> getUserDistrictsFromDb() async {
-  /*
+
+  var url = Uri.parse('https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/updateLocal');
+  var response = await http.get(url);
+  var responseBody = jsonDecode(response.body);
+  var districts = responseBody['districts'];
+  await syncDataOnLogin(districts);
+
   final db = await getDatabase();
   final List<Map<String, dynamic>> maps = await db.query(
     'districts',
@@ -30,17 +36,6 @@ Future<List<District>> getUserDistrictsFromDb() async {
     );
   });
 
-   */
-  String userId = globals.userId.toString();
-  final response = await http.get(Uri.parse("https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/getDistrictAssignments/$userId"));
-  if (response.statusCode == 200) {
-    List<dynamic> districtsJson = json.decode(response.body);
-    return districtsJson.map((json) {
-      return District.fromJson(json);
-    }).toList();
-  } else {
-    throw Exception('Failed to load districts');
-  }
 }
 
 Future<List<District>> getOtherUserDistrictsFromDb() async {
@@ -71,7 +66,7 @@ class _DistrictPageState extends State<DistrictPage> {
   late Future<List<District>?> _accessFuture;
   bool _isOtherDistrictsExpanded = false;
   bool _hasInternetConnection = true;
-  StreamSubscription<ConnectivityResult>? _connectivitySubscription;
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
 
   @override
   void initState() {
@@ -94,9 +89,9 @@ class _DistrictPageState extends State<DistrictPage> {
     });
 
     _connectivitySubscription =
-        Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+        Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
           setState(() {
-            _hasInternetConnection = result != ConnectivityResult.none;
+            _hasInternetConnection = result.contains(ConnectivityResult.none) ? false : true;
           });
         });
   }
