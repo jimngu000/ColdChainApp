@@ -8,14 +8,13 @@ Future<Database> getDatabase() async {
 }
 
 Future<void> syncDataOnLogin(List<dynamic> districts) async {
-
- Database database = await getDatabase();
+  Database database = await getDatabase();
 
   // Drop existing tables if they exist
-  // Drop existing tables if they exist (just for safety, this part is redundant since we deleted the database)
   await database.execute('DROP TABLE IF EXISTS refrigerators');
   await database.execute('DROP TABLE IF EXISTS hospitals');
   await database.execute('DROP TABLE IF EXISTS districts');
+  await database.execute('DROP TABLE IF EXISTS logs'); // Drop logs table if it exists
 
   // Create new tables
   await database.execute('''
@@ -47,6 +46,20 @@ Future<void> syncDataOnLogin(List<dynamic> districts) async {
       vaccine_count INTEGER,
       hospital_id INTEGER,
       FOREIGN KEY(hospital_id) REFERENCES hospitals(id)
+    );
+  ''');
+
+  // Create logs table
+  await database.execute('''
+    CREATE TABLE logs(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user INTEGER,
+      district INTEGER,
+      hospital INTEGER,
+      refrigerator INTEGER,
+      previous_value TEXT,
+      new_value TEXT,
+      timestamp TEXT
     );
   ''');
 

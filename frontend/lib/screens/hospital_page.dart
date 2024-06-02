@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:connectivity_plus/connectivity_plus.dart';
 import '../models/district.dart';
 import '../models/hospital.dart';
+import '../models/log.dart';
 import 'profile_page.dart';
 import 'refrigerator_page.dart';
 import '../services/database_service.dart';
@@ -142,7 +144,8 @@ class _HospitalPageState extends State<HospitalPage> {
                       MaterialPageRoute(
                           builder: (context) => RefrigeratorPage(
                               hospital: snapshot.data![idx],
-                              viewOnly: widget.viewOnly)),
+                              viewOnly: widget.viewOnly,
+                              districtID: widget.district.id!)),
                     );
                   },
                 ),
@@ -160,6 +163,18 @@ class _HospitalPageState extends State<HospitalPage> {
           onPressed: _hasInternetConnection ? () async {
             debugPrint('Upload button pressed');
             // TODO: Mark, you should add logic here to upload logs to the backend database.
+            final db = await getDatabase();
+            final List<Map<String, dynamic>> logs = await db.query('logs');
+            final List<Log> logList = logs.map((log) => Log.fromJson(log)).toList();
+            final url = Uri.parse("http://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/addLog");
+            final response = await http.post(
+              url,
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: jsonEncode(logs),
+            );
+            print("");
           } : null,
           backgroundColor: _hasInternetConnection ? Theme.of(context).primaryColor : Colors.grey,
           tooltip: 'Upload updates to backend database',

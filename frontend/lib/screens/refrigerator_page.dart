@@ -1,12 +1,15 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:logistics/services/database_service.dart';
+import '../models/log.dart';
 import '../models/refrigerator.dart';
 import '../models/hospital.dart';
 import 'refrigerator_detail_page.dart';
 import '../services/route_observer.dart';
 import 'profile_page.dart';
+import 'package:http/http.dart' as http;
 
 Future<List<Refrigerator>> getFridgesByHospitalIDFromDb(int hospitalID) async {
   final db = await getDatabase();
@@ -36,9 +39,10 @@ Future<List<Refrigerator>> getFridgesByHospitalIDFromDb(int hospitalID) async {
 class RefrigeratorPage extends StatefulWidget {
   final Hospital hospital;
   final bool viewOnly;
+  final int districtID;
 
   const RefrigeratorPage(
-      {super.key, required this.hospital, required this.viewOnly});
+      {super.key, required this.hospital, required this.viewOnly, required this.districtID});
 
   @override
   State<RefrigeratorPage> createState() => _RefrigeratorPageState();
@@ -161,6 +165,7 @@ class _RefrigeratorPageState extends State<RefrigeratorPage> with RouteAware {
                       MaterialPageRoute(
                         builder: (context) => RefrigeratorDetailPage(
                           refrigerator: snapshot.data![idx],
+                          districtID: widget.districtID,
                         ),
                       ),
                     ).then((_) {
@@ -184,6 +189,19 @@ class _RefrigeratorPageState extends State<RefrigeratorPage> with RouteAware {
           onPressed: _hasInternetConnection ? () async {
             debugPrint('Upload button pressed');
             // TODO: Mark, you should add logic here to upload logs to the backend database.
+            final db = await getDatabase();
+            final List<Map<String, dynamic>> logs = await db.query('logs');
+            final List<Log> logList = logs.map((log) => Log.fromJson(log)).toList();
+            final url = Uri.parse("http://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/addLog");
+            final response = await http.post(
+              url,
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: jsonEncode(logList),
+            );
+            print("");
+
           } : null,
           backgroundColor: _hasInternetConnection ? Theme.of(context).primaryColor : Colors.grey,
           tooltip: 'Upload updates to backend database',

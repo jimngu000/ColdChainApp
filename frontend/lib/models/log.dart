@@ -23,14 +23,14 @@ class Log {
 
   factory Log.fromJson(Map<String, dynamic> json) {
     return Log(
-      id: json['pk'],
-      user: json['fields']['user'],
-      district: json['fields']['district'],
-      hospital: json['fields']['hospital'],
-      refrigerator: json['fields']['refrigerator'],
-      previousValue: jsonDecode(json['fields']['previous_value']),
-      newValue: jsonDecode(json['fields']['new_value']),
-      timestamp: DateTime.parse(json['fields']['timestamp']),
+      id: json['id'],
+      user: json['user'],
+      district: json['district'],
+      hospital: json['hospital'],
+      refrigerator: json['refrigerator'],
+      previousValue: jsonDecode(json['previous_value']),
+      newValue: jsonDecode(json['new_value']),
+      timestamp: DateTime.parse(json['timestamp']),
     );
   }
 

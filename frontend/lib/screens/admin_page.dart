@@ -16,7 +16,7 @@ import 'profile_page.dart';
 
 Future<List<District>> getAllDistricts() async {
   final response =
-  await http.get(Uri.parse("http://10.0.2.2:8000/logistics/getAllDistricts"));
+  await http.get(Uri.parse("https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/getAllDistricts"));
   if (response.statusCode == 200) {
     List<dynamic> dJson = json.decode(response.body);
     return dJson.map((json) {
@@ -29,7 +29,7 @@ Future<List<District>> getAllDistricts() async {
 
 Future<List<Hospital>> getAllHospitals() async {
   final response =
-  await http.get(Uri.parse("http://10.0.2.2:8000/logistics/getAllHospitals"));
+  await http.get(Uri.parse("https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/getAllHospitals"));
   if (response.statusCode == 200) {
     List<dynamic> hospitalJson = json.decode(response.body);
     return hospitalJson.map((json) {
@@ -42,7 +42,7 @@ Future<List<Hospital>> getAllHospitals() async {
 
 Future<List<User>> getAllUserInfo() async {
   final response =
-  await http.get(Uri.parse("http://10.0.2.2:8000/logistics/getAllUserInfo"));
+  await http.get(Uri.parse("https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/getAllUserInfo"));
   if (response.statusCode == 200) {
     List<dynamic> userJson = json.decode(response.body);
     List<User> users = [];
@@ -60,7 +60,7 @@ Future<List<User>> getAllUserInfo() async {
 
 Future<List<Access>> getAllAccess() async {
   final response =
-  await http.get(Uri.parse("http://10.0.2.2:8000/logistics/getAllAccess"));
+  await http.get(Uri.parse("https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/getAllAccess"));
   if (response.statusCode == 200) {
     List<dynamic> accessJson = json.decode(response.body);
     return accessJson.map((json) {
@@ -73,7 +73,7 @@ Future<List<Access>> getAllAccess() async {
 
 Future<List<Log>> getAllLog() async {
   final response =
-  await http.get(Uri.parse("http://10.0.2.2:8000/logistics/getLog"));
+  await http.get(Uri.parse("https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/getLog"));
   if (response.statusCode == 200) {
     List<dynamic> logJson = json.decode(response.body);
     return logJson.map((j) {
@@ -86,7 +86,7 @@ Future<List<Log>> getAllLog() async {
 
 Future<List<int>> getAllConflict() async {
   final response =
-  await http.get(Uri.parse("http://10.0.2.2:8000/logistics/getConflictLog"));
+  await http.get(Uri.parse("https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/getConflictLog"));
   if (response.statusCode == 200) {
     List<dynamic> logJson = json.decode(response.body);
     List<ConflictLog> conflicts = logJson.map((j) {
@@ -406,7 +406,7 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
                       String jsonBody = jsonEncode(newAccess.toJson());
                       jsonBody = "[$jsonBody]";
                       final response = await http.post(
-                        Uri.parse('http://10.0.2.2:8000/logistics/addAccess/${selectedUser!.id}/${selectedDistrict!.id}'),
+                        Uri.parse('https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/reassignDM/${selectedUser!.id}/${selectedDistrict!.id}'),
                         headers: {
                           'Content-Type': 'application/json',
                         },

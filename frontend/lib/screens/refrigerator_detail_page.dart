@@ -1,28 +1,61 @@
 import 'package:flutter/material.dart';
+import '../models/log.dart';
 import '../models/refrigerator.dart';
 import 'package:logistics/services/database_service.dart';
+import 'globals.dart' as globals;
 
-Future<void> updateRefrigeratorInDb(Refrigerator refrigerator) async {
+Future<void> updateRefrigeratorInDb(Refrigerator newRefrigerator, int districtID) async {
   final db = await getDatabase();
+
+  // Retrieve the current (previous) values
+  final List<Map<String, dynamic>> result = await db.query(
+    'refrigerators',
+    where: 'id = ?',
+    whereArgs: [newRefrigerator.id],
+  );
+
+  if (result.isEmpty) {
+    throw Exception('Refrigerator not found');
+  }
+
+  final oldRefrigerator = Refrigerator.fromJson(result.first);
+
+  // Update the refrigerator
   int rowsAffected = await db.update(
     'refrigerators',
-    refrigerator.toJson(),
+    newRefrigerator.toJson(),
     where: 'id = ?',
-    whereArgs: [refrigerator.id],
+    whereArgs: [newRefrigerator.id],
   );
-  // The update operation should go through successfully (aka rows effected = 1)
+
   if (rowsAffected == 0) {
     throw Exception('Failed to update refrigerator: No rows affected');
   }
 
-  // Update the log.
+  final log = Log(
+    user: globals.userId, // Replace with actual user ID
+    district: districtID,
+    hospital: newRefrigerator.hospitalId,
+    refrigerator: newRefrigerator.id,
+    previousValue: oldRefrigerator.toJson(),
+    newValue: newRefrigerator.toJson(),
+    timestamp: DateTime.now(),
+  );
 
+  // Save the log
+  await saveLogToDb(log);
+}
+
+Future<void> saveLogToDb(Log log) async {
+  final db = await getDatabase();
+  await db.insert('logs', log.toJson());
 }
 
 class RefrigeratorDetailPage extends StatefulWidget {
   final Refrigerator refrigerator;
+  final int districtID;
 
-  const RefrigeratorDetailPage({super.key, required this.refrigerator});
+  const RefrigeratorDetailPage({super.key, required this.refrigerator, required this.districtID});
 
   @override
   State<RefrigeratorDetailPage> createState() => _RefrigeratorDetailPageState();
@@ -75,7 +108,7 @@ class _RefrigeratorDetailPageState extends State<RefrigeratorDetailPage> {
 
       try {
         // Update the database with new values
-        await updateRefrigeratorInDb(updatedRefrigerator);
+        await updateRefrigeratorInDb(updatedRefrigerator, widget.districtID);
         // Show a success message or navigate back
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Refrigerator details updated successfully')),
