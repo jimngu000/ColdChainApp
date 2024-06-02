@@ -1,7 +1,10 @@
+from datetime import datetime
 from django.core import serializers
 from django.core.serializers import serialize
 import json
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
+from datetime import datetime, timezone
 
 from .models import Hospital, District, User, Refrigerator, Log, ConflictLog, Access, LatestFridgeUpdates
 from django.http import HttpResponse
@@ -227,7 +230,7 @@ def addLog(request):
                 refrigerator = Refrigerator.objects.get(id=log['refrigerator']) if 'refrigerator' in log else None
                 previous_value = json.loads(log.get('previous_value', '{}'))
                 new_value = json.loads(log.get('new_value', '{}'))
-                timestamp = json.loads(log.get('timestamp', '{}'))
+                timestamp = parse_datetime(log.get('timestamp'))
                 log_obj = Log(
                     user=user,
                     district=district,
@@ -244,7 +247,8 @@ def addLog(request):
                 if LatestFridgeUpdates.objects.filter(refrigerator=refrigerator).exists():
                     latest_update = LatestFridgeUpdates.objects.get(refrigerator=refrigerator)
                     previous_time = latest_update.timestamp
-                    if previous_time < timestamp:
+                    timestamp_utc = timestamp.replace(tzinfo=timezone.utc)  # timezone workaround
+                    if previous_time < timestamp_utc:
                         for key, value in new_value.items():
                             setattr(refrigerator, key, value)
                         refrigerator.save()
@@ -282,7 +286,9 @@ def logSolvers(request):
     return HttpResponse("OK")
 
 
-
+def updateLocal(request):
+    districts = fetchDistricts()
+    return JsonResponse({'districts': districts})
 
 @csrf_exempt
 def updateFridge(request, userId):

@@ -27,6 +27,7 @@ urlpatterns = [
     path("getAccessHospitalAssignments/<int:userId>/", views.getAccessHospitalAssignments, name="getAccessHospitalAssignments"),
     path("getOneHospital/<int:hospitalId>/", views.getOneHospital, name="getOneHospital"),
     path("addLog", views.addLog, name="addLog"),
+    path("updateLocal", views.updateLocal, name="updateLocal"),
 ]
 
  # re_path(r'^$', views.index, name='index'),
