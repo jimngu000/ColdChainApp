@@ -11,8 +11,24 @@ import 'globals.dart' as globals;
 import 'package:http/http.dart' as http;
 
 Future<List<District>> getUserDistrictsFromDb() async {
-  globals.fridgesWithoutOwnership.clear();
-  var url = Uri.parse('https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/updateLocal');
+  final db = await getDatabase();
+  final List<Map<String, dynamic>> maps = await db.query(
+    'districts',
+    where: 'user_id = ?',
+    whereArgs: [globals.userId],
+  );
+
+  return List.generate(maps.length, (i) {
+    return District(
+      id: maps[i]['id'],
+      name: maps[i]['name'],
+    );
+  });
+}
+
+Future<List<District>> getUserDistrictsFromBackend() async {
+  var url = Uri.parse(
+      'https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/updateLocal');
   var response = await http.get(url);
   var responseBody = jsonDecode(response.body);
   var districts = responseBody['districts'];
@@ -98,6 +114,16 @@ class _DistrictPageState extends State<DistrictPage> {
   Future<List<District>?> _loadDistricts() async {
     try {
       List<District> districts = await getUserDistrictsFromDb();
+      return districts;
+    } catch (e) {
+      print('Failed to fetch or save districts: $e');
+      return Future.error('Failed to load data');
+    }
+  }
+
+  Future<List<District>?> _loadDistrictsBackend() async {
+    try {
+      List<District> districts = await getUserDistrictsFromBackend();
       return districts;
     } catch (e) {
       print('Failed to fetch or save districts: $e');
@@ -261,7 +287,7 @@ class _DistrictPageState extends State<DistrictPage> {
                         ? () async {
                             debugPrint('Download button pressed');
                             setState(() {
-                              _districtsFuture = _loadDistricts();
+                              _districtsFuture = _loadDistrictsBackend();
                             });
                           }
                         : null,
