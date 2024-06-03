@@ -242,7 +242,7 @@ def addLog(request):
                 )
                 log_obj.save()
                 if user != district.user:
-                    conflict_log = ConflictLog(log=log)
+                    conflict_log = ConflictLog(log=log_obj)
                     conflict_log.save()
                 if LatestFridgeUpdates.objects.filter(refrigerator=refrigerator).exists():
                     latest_update = LatestFridgeUpdates.objects.get(refrigerator=refrigerator)
