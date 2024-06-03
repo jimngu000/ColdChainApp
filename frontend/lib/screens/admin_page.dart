@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-//import '../models/managers.dart';
-
 import 'package:http/http.dart' as http;
 import 'package:logistics/models/hospital.dart';
 import 'dart:convert';
@@ -13,7 +11,6 @@ import 'log_page.dart';
 import 'profile_page.dart';
 
 Log jsonToLog(Map<String, dynamic> j) {
-  // Safely get the 'fields' map
   final fields = j['fields'] ?? {};
 
   return Log(
@@ -22,11 +19,11 @@ Log jsonToLog(Map<String, dynamic> j) {
     district: j["fields"]['district'] ?? -1,
     hospital: j["fields"]['hospital'] ?? -1,
     refrigerator: j["fields"]['refrigerator'],
-    previousValue: fields['previous_value'] is String 
-        ? jsonDecode(fields['previous_value']) 
+    previousValue: fields['previous_value'] is String
+        ? jsonDecode(fields['previous_value'])
         : fields['previous_value'] ?? {},
-    newValue: fields['new_value'] is String 
-        ? jsonDecode(fields['new_value']) 
+    newValue: fields['new_value'] is String
+        ? jsonDecode(fields['new_value'])
         : fields['new_value'] ?? {},
     timestamp: DateTime.parse(j["fields"]['timestamp']),
   );
@@ -128,15 +125,14 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
   @override
   void initState() {
     super.initState();
+    _loadData();
+  }
+
+  void _loadData() {
     _logFuture = _loadLog();
     _conflictFuture = _loadConflict();
     _districtsFuture = _loadDistricts();
     _usersFuture = _loadUsers();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   Future<List<District>?> _loadDistricts() async {
@@ -203,13 +199,21 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
             const Spacer(),
             IconButton(
               onPressed: () {
-                debugPrint("Admin to Profile");//del
+                debugPrint("Admin to Profile");
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => ProfilePage()),
                 );
               },
               icon: const Icon(Icons.person),
+            ),
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  _loadData();
+                });
+              },
+              icon: const Icon(Icons.refresh),
             ),
           ],
         ),

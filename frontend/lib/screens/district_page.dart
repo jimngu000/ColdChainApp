@@ -98,7 +98,6 @@ class _DistrictPageState extends State<DistrictPage> {
     setState(() {
       _hasInternetConnection = connectivityResult != ConnectivityResult.none;
     });
-    /*
 
     _connectivitySubscription = Connectivity()
         .onConnectivityChanged
@@ -106,9 +105,8 @@ class _DistrictPageState extends State<DistrictPage> {
       setState(() {
         _hasInternetConnection = result != ConnectivityResult.none;
       });
-    });
-
-     */
+    } as void Function(List<ConnectivityResult> event)?) as StreamSubscription<ConnectivityResult>?;
+    
   }
 
   Future<List<District>?> _loadDistricts() async {
