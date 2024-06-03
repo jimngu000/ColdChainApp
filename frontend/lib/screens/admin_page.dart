@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 //import '../models/managers.dart';
 
 import 'package:http/http.dart' as http;
@@ -10,7 +9,6 @@ import '../models/conflictlog.dart';
 import '../models/district.dart';
 import '../models/log.dart';
 import '../models/user.dart';
-import '../models/access.dart';
 import 'log_page.dart';
 import 'profile_page.dart';
 
@@ -78,19 +76,6 @@ Future<List<User>> getAllUserInfo() async {
   }
 }
 
-Future<List<Access>> getAllAccess() async {
-  final response =
-  await http.get(Uri.parse("https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/getAllAccess"));
-  if (response.statusCode == 200) {
-    List<dynamic> accessJson = json.decode(response.body);
-    return accessJson.map((json) {
-      return Access.fromJson(json);
-    }).toList();
-  } else {
-    throw Exception('Failed to load access');
-  }
-}
-
 Future<List<Log>> getAllLog() async {
   final response =
   await http.get(Uri.parse("https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/getLog"));
@@ -133,19 +118,16 @@ class SystemAdministratorPage extends StatefulWidget {
 class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
   User? selectedUser;
   District? selectedDistrict;
-  late Future<List<Access>?> _accessFuture;
   late Future<List<Log>?> _logFuture;
   late Future<List<int>?> _conflictFuture;
   late Future<List<District>?> _districtsFuture;
   late Future<List<User>?> _usersFuture;
-  bool _isAccessExpanded = false;
   bool _isLogExpanded = false;
   bool _isConflictLogExpanded = false;
 
   @override
   void initState() {
     super.initState();
-    _accessFuture = _loadAccess();
     _logFuture = _loadLog();
     _conflictFuture = _loadConflict();
     _districtsFuture = _loadDistricts();
@@ -179,16 +161,6 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
     }
   }
 
-  Future<List<Access>?> _loadAccess() async {
-    try {
-      // Fetch access from the API
-      List<Access> access = await getAllAccess();
-      return access;
-    } catch (e) {
-      print('Failed to fetch or save access: $e');
-      return Future.error('Failed to load data');
-    }
-  }
 
   Future<List<Log>?> _loadLog() async {
     try {
@@ -243,57 +215,15 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
         ),
       ),
       body:
-        SingleChildScrollView(
-          child: Column(
+      SingleChildScrollView(
+        child: Column(
             children:[
-              ListTile( // Access
-                title: Text("Permission"),
-                trailing: Icon(
-                  _isAccessExpanded
-                    ? Icons.expand_less
-                    : Icons.expand_more,
-                ),
-                onTap: () {
-                  setState(() {
-                    _isAccessExpanded = !_isAccessExpanded;
-                  });
-                },
-              ),
-              if (_isAccessExpanded)
-                FutureBuilder<List<Access>?>(
-                  future: _accessFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                    }
-                    if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
-                    }
-                    if (snapshot.hasData && snapshot.data != null) {
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: snapshot.data!.length,
-                        itemBuilder: (context, idx) => Card(
-                          color: Theme.of(context).colorScheme.primaryContainer,
-                          elevation: 2.0,
-                          child: ListTile(
-                            // permission content
-                            title: Text("${snapshot.data![idx].name} district id: ${snapshot.data![idx].district}"),
-                            onTap: null, // modify this if we want to do something with the permission
-                          ),
-                        ),
-                      );
-                    }
-                    return const Center(child: Text('No Data'));
-                  },
-                ),
               ListTile( // logs
                 title: Text("Log"),
                 trailing: Icon(
                   _isLogExpanded
-                    ? Icons.expand_less
-                    : Icons.expand_more,
+                      ? Icons.expand_less
+                      : Icons.expand_more,
                 ),
                 onTap: () {
                   setState(() {
@@ -306,7 +236,7 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
                   future: _logFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
+                      return const CircularProgressIndicator();
                     }
                     if (snapshot.hasError) {
                       return Center(child: Text('Error: ${snapshot.error}'));
@@ -322,8 +252,8 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
                           child: ListTile(
                             // log content
                             title: Text("${snapshot.data![idx].id} user id: ${snapshot.data![idx].user} "
-                            "district id: ${snapshot.data![idx].district} hospital id: ${snapshot.data![idx].hospital} "
-                            "refrigerator id: ${snapshot.data![idx].refrigerator} timestamp: ${snapshot.data![idx].timestamp}"),
+                                "district id: ${snapshot.data![idx].district} hospital id: ${snapshot.data![idx].hospital} "
+                                "refrigerator id: ${snapshot.data![idx].refrigerator} timestamp: ${snapshot.data![idx].timestamp}"),
                             onTap: () async {
                               debugPrint("FFFFF ${snapshot.data![idx].previousValue}"); //del
                               await Navigator.push(
@@ -344,8 +274,8 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
                 title: Text("Conflicts"),
                 trailing: Icon(
                   _isConflictLogExpanded
-                    ? Icons.expand_less
-                    : Icons.expand_more,
+                      ? Icons.expand_less
+                      : Icons.expand_more,
                 ),
                 onTap: () {
                   setState(() {
@@ -358,7 +288,7 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
                   future: _conflictFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
+                      return const CircularProgressIndicator();
                     }
                     if (snapshot.hasError) {
                       return Center(child: Text('Error: ${snapshot.error}'));
@@ -424,20 +354,13 @@ class _SystemAdministratorPageState extends State<SystemAdministratorPage> {
                   onPressed: () async {
                     if (selectedUser != null) {
                       print('Selected Manager: $selectedUser');
-                      // update access db
-                      Access newAccess = Access(name: selectedUser!.username, user: selectedUser!.id, district: selectedDistrict!.id);
-                      String jsonBody = jsonEncode(newAccess.toJson());
-                      jsonBody = "[$jsonBody]";
+                      // update assignments
                       final response = await http.post(
                         Uri.parse('https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/reassignDM/${selectedUser!.id}/${selectedDistrict!.id}'),
                         headers: {
                           'Content-Type': 'application/json',
                         },
-                        body: jsonBody,
                       );
-                      setState(() {
-                        _accessFuture = _loadAccess();
-                      });
                       print(response.body);
                       _cancel();
                     }

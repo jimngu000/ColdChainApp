@@ -9,7 +9,7 @@ import 'globals.dart' as globals;
 
 Future<List<District>> getAllDistricts() async {
   final response = await http
-      .get(Uri.parse("http://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/getAllDistricts"));
+      .get(Uri.parse("https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/getAllDistricts"));
   if (response.statusCode == 200) {
     List<dynamic> districtsJson = json.decode(response.body);
     return districtsJson.map((json) {

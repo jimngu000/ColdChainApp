@@ -5,7 +5,7 @@ import 'package:logistics/services/database_service.dart';
 import 'globals.dart' as globals;
 
 Future<void> updateRefrigeratorInDb(
-    Refrigerator newRefrigerator, int districtID) async {
+    Refrigerator newRefrigerator, int districtID, bool ownership) async {
   final db = await getDatabase();
 
   // Retrieve the current (previous) values
@@ -45,6 +45,11 @@ Future<void> updateRefrigeratorInDb(
 
   // Save the log
   await saveLogToDb(log);
+
+  // Track fridges without ownership
+  if (!ownership) {
+    globals.fridgesWithoutOwnership.add(newRefrigerator.id);
+  }
 }
 
 Future<void> saveLogToDb(Log log) async {
@@ -59,9 +64,9 @@ class RefrigeratorDetailPage extends StatefulWidget {
 
   const RefrigeratorDetailPage(
       {super.key,
-      required this.refrigerator,
-      required this.ownership,
-      required this.districtID});
+        required this.refrigerator,
+        required this.ownership,
+        required this.districtID});
 
   @override
   State<RefrigeratorDetailPage> createState() => _RefrigeratorDetailPageState();
@@ -83,35 +88,18 @@ class _RefrigeratorDetailPageState extends State<RefrigeratorDetailPage> {
   @override
   void initState() {
     super.initState();
-    if (widget.ownership) {
-      _nameController = TextEditingController(text: widget.refrigerator.name);
-      _modelIdController =
-          TextEditingController(text: widget.refrigerator.modelId);
-      _manufacturerController =
-          TextEditingController(text: widget.refrigerator.manufacturer);
-      _monitorTypeController =
-          TextEditingController(text: widget.refrigerator.monitorType);
-      _regulatorTypeController =
-          TextEditingController(text: widget.refrigerator.regulatorType);
-      _vaccineCountController = TextEditingController(
-          text: widget.refrigerator.vaccineCount.toString());
+    bool hasOwnership = widget.ownership || globals.fridgesWithoutOwnership.contains(widget.refrigerator.id);
 
-      _tempMonitorInstalled = widget.refrigerator.tempMonitorInstalled;
-      _monitorWorking = widget.refrigerator.monitorWorking;
-      _voltageRegulatorInstalled =
-          widget.refrigerator.voltageRegulatorInstalled;
-    } else {
-      _nameController = TextEditingController(text: '');
-      _modelIdController = TextEditingController(text: '');
-      _manufacturerController = TextEditingController(text: '');
-      _monitorTypeController = TextEditingController(text: '');
-      _regulatorTypeController = TextEditingController(text: '');
-      _vaccineCountController = TextEditingController(text: '0');
+    _nameController = TextEditingController(text: hasOwnership ? widget.refrigerator.name : '');
+    _modelIdController = TextEditingController(text: hasOwnership ? widget.refrigerator.modelId : '');
+    _manufacturerController = TextEditingController(text: hasOwnership ? widget.refrigerator.manufacturer : '');
+    _monitorTypeController = TextEditingController(text: hasOwnership ? widget.refrigerator.monitorType : '');
+    _regulatorTypeController = TextEditingController(text: hasOwnership ? widget.refrigerator.regulatorType : '');
+    _vaccineCountController = TextEditingController(text: hasOwnership ? widget.refrigerator.vaccineCount.toString() : '0');
 
-      _tempMonitorInstalled = false;
-      _monitorWorking = false;
-      _voltageRegulatorInstalled = false;
-    }
+    _tempMonitorInstalled = hasOwnership ? widget.refrigerator.tempMonitorInstalled : false;
+    _monitorWorking = hasOwnership ? widget.refrigerator.monitorWorking : false;
+    _voltageRegulatorInstalled = hasOwnership ? widget.refrigerator.voltageRegulatorInstalled : false;
   }
 
   Future<void> _saveChanges() async {
@@ -132,7 +120,7 @@ class _RefrigeratorDetailPageState extends State<RefrigeratorDetailPage> {
 
     try {
       // Update the database with new values
-      await updateRefrigeratorInDb(updatedRefrigerator, widget.districtID);
+      await updateRefrigeratorInDb(updatedRefrigerator, widget.districtID, widget.ownership);
       // Show a success message or navigate back
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -148,6 +136,8 @@ class _RefrigeratorDetailPageState extends State<RefrigeratorDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    bool hasOwnership = widget.ownership || globals.fridgesWithoutOwnership.contains(widget.refrigerator.id);
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
@@ -184,12 +174,12 @@ class _RefrigeratorDetailPageState extends State<RefrigeratorDetailPage> {
               SwitchListTile(
                 title: const Text('Temperature Monitor Installed'),
                 value: _tempMonitorInstalled,
-                onChanged: widget.ownership
+                onChanged: hasOwnership
                     ? (bool value) {
-                        setState(() {
-                          _tempMonitorInstalled = value;
-                        });
-                      }
+                  setState(() {
+                    _tempMonitorInstalled = value;
+                  });
+                }
                     : null,
               ),
               TextFormField(
@@ -199,23 +189,23 @@ class _RefrigeratorDetailPageState extends State<RefrigeratorDetailPage> {
               SwitchListTile(
                 title: const Text('Monitor Working'),
                 value: _monitorWorking,
-                onChanged: widget.ownership
+                onChanged: hasOwnership
                     ? (bool value) {
-                        setState(() {
-                          _monitorWorking = value;
-                        });
-                      }
+                  setState(() {
+                    _monitorWorking = value;
+                  });
+                }
                     : null,
               ),
               SwitchListTile(
                 title: const Text('Voltage Regulator Installed'),
                 value: _voltageRegulatorInstalled,
-                onChanged: widget.ownership
+                onChanged: hasOwnership
                     ? (bool value) {
-                        setState(() {
-                          _voltageRegulatorInstalled = value;
-                        });
-                      }
+                  setState(() {
+                    _voltageRegulatorInstalled = value;
+                  });
+                }
                     : null,
               ),
               TextFormField(

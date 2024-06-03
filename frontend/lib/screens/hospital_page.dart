@@ -62,12 +62,15 @@ class _HospitalPageState extends State<HospitalPage> {
       _hasInternetConnection = connectivityResult != ConnectivityResult.none;
     });
 
+    /*
     _connectivitySubscription =
         Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
           setState(() {
             _hasInternetConnection = result != ConnectivityResult.none;
           });
         });
+
+     */
   }
 
   Future<List<Hospital>?> _loadHospitals() async {
@@ -166,7 +169,7 @@ class _HospitalPageState extends State<HospitalPage> {
             final db = await getDatabase();
             final List<Map<String, dynamic>> logs = await db.query('logs');
             final List<Log> logList = logs.map((log) => Log.fromJson(log)).toList();
-            final url = Uri.parse("http://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/addLog");
+            final url = Uri.parse("https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/addLog");
             final response = await http.post(
               url,
               headers: {
@@ -174,7 +177,9 @@ class _HospitalPageState extends State<HospitalPage> {
               },
               body: jsonEncode(logs),
             );
-            print("");
+            if (response.statusCode == 200) {
+              await db.delete('logs');
+            }
           } : null,
           backgroundColor: _hasInternetConnection ? Theme.of(context).primaryColor : Colors.grey,
           tooltip: 'Upload updates to backend database',

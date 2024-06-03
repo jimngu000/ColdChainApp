@@ -27,7 +27,7 @@ class UserAuthenticator {
   Future<int> validateCredentials(String username, String password) async {
     try {
       var url =
-      Uri.parse('http://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/logIn/$username/$password');
+      Uri.parse('https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/logIn/$username/$password');
       var response = await http.get(url);
 
       if (response.statusCode != 200) {
@@ -45,6 +45,7 @@ class UserAuthenticator {
 
       globals.userId = responseBody['userID'];
       globals.username = username;
+      globals.fridgesWithoutOwnership.clear();
 
       if (role == 'admin') {
         return Future(() => 2);

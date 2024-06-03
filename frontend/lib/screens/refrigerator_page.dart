@@ -74,7 +74,10 @@ class _RefrigeratorPageState extends State<RefrigeratorPage> with RouteAware {
 
   @override
   void dispose() {
+    /*
     _connectivitySubscription?.cancel();
+
+     */
     routeObserver.unsubscribe(this);
     super.dispose();
   }
@@ -91,6 +94,8 @@ class _RefrigeratorPageState extends State<RefrigeratorPage> with RouteAware {
       _hasInternetConnection = connectivityResult != ConnectivityResult.none;
     });
 
+
+    /*
     _connectivitySubscription = Connectivity()
         .onConnectivityChanged
         .listen((ConnectivityResult result) {
@@ -98,6 +103,8 @@ class _RefrigeratorPageState extends State<RefrigeratorPage> with RouteAware {
         _hasInternetConnection = result != ConnectivityResult.none;
       });
     });
+
+     */
   }
 
   @override
@@ -197,7 +204,7 @@ class _RefrigeratorPageState extends State<RefrigeratorPage> with RouteAware {
                   final List<Log> logList =
                       logs.map((log) => Log.fromJson(log)).toList();
                   final url = Uri.parse(
-                      "http://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/addLog");
+                      "https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/addLog");
                   final response = await http.post(
                     url,
                     headers: {
@@ -205,7 +212,9 @@ class _RefrigeratorPageState extends State<RefrigeratorPage> with RouteAware {
                     },
                     body: jsonEncode(logList),
                   );
-                  print("");
+                  if (response.statusCode == 200) {
+                    await db.delete('logs');
+                  }
                 }
               : null,
           backgroundColor: _hasInternetConnection

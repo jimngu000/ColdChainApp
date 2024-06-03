@@ -11,6 +11,7 @@ import 'globals.dart' as globals;
 import 'package:http/http.dart' as http;
 
 Future<List<District>> getUserDistrictsFromDb() async {
+  globals.fridgesWithoutOwnership.clear();
   var url = Uri.parse('https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/updateLocal');
   var response = await http.get(url);
   var responseBody = jsonDecode(response.body);
@@ -81,6 +82,7 @@ class _DistrictPageState extends State<DistrictPage> {
     setState(() {
       _hasInternetConnection = connectivityResult != ConnectivityResult.none;
     });
+    /*
 
     _connectivitySubscription = Connectivity()
         .onConnectivityChanged
@@ -89,6 +91,8 @@ class _DistrictPageState extends State<DistrictPage> {
         _hasInternetConnection = result != ConnectivityResult.none;
       });
     });
+
+     */
   }
 
   Future<List<District>?> _loadDistricts() async {
@@ -280,11 +284,19 @@ class _DistrictPageState extends State<DistrictPage> {
                             debugPrint('Upload button pressed');
                             // TODO: Mark, you should add logic here to upload logs to the backend database.
                             final db = await getDatabase();
-                            final List<Map<String, dynamic>> logs =
-                                await db.query('logs');
-                            final List<Log> logList =
-                                logs.map((log) => Log.fromJson(log)).toList();
-                            print("");
+                            final List<Map<String, dynamic>> logs = await db.query('logs');
+                            final List<Log> logList = logs.map((log) => Log.fromJson(log)).toList();
+                            final url = Uri.parse("https://sheltered-dusk-62147-56fb479b5ef3.herokuapp.com/logistics/addLog");
+                            final response = await http.post(
+                              url,
+                              headers: {
+                                'Content-Type': 'application/json',
+                              },
+                              body: jsonEncode(logs),
+                            );
+                            if (response.statusCode == 200) {
+                              await db.delete('logs');
+                            }
                           }
                         : null,
                     backgroundColor: _hasInternetConnection
